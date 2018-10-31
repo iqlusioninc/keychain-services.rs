@@ -26,7 +26,6 @@
     unused_import_braces,
     unused_qualifications
 )]
-#![doc(html_root_url = "https://docs.rs/keychain-services/0.0.0")]
 
 #[cfg(not(target_os = "macos"))]
 compile_error!("This crate presently only compiles on macOS.");
