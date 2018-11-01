@@ -4,13 +4,6 @@
 [![Build Status][build-image]][build-link]
 [![Apache 2.0 Licensed][license-image]][license-link]
 
-[crate-image]: https://img.shields.io/crates/v/keychain-services.svg
-[crate-link]: https://crates.io/crates/keychain-services
-[build-image]: https://travis-ci.org/iqlusioninc/keychain-services-rs.svg?branch=master
-[build-link]: https://travis-ci.org/iqlusioninc/keychain-services-rs
-[license-image]: https://img.shields.io/badge/license-Apache2.0/MIT-blue.svg
-[license-link]: https://github.com/iqlusioninc/keychain-services-rs/blob/master/LICENSE-APACHE
-
 Rust binding for macOS Keychain Services, including TouchID-guarded access to
 cryptographic keys stored in the Secure Enclave Processor (SEP).
 
@@ -19,6 +12,8 @@ as Keychain Services itself, but also provide a safe, mostly idiomatic API
 which does not rely on e.g. Core Foundation types.
 
 **NOTE:** This is an unofficial binding which is in no way affiliated with Apple!
+
+[Documentation]
 
 ## Status
 
@@ -76,8 +71,6 @@ You will need to use the [codesign] command-line utility (or XCode) to sign
 your code before it will be able to access most Keychain Services API
 functionality.
 
-[codesign]: https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html#//apple_ref/doc/uid/TP40005929-CH4-SW4
-
 ## License
 
 Licensed under either of
@@ -91,3 +84,12 @@ at your option.
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you shall be dual licensed as above, without any
 additional terms or conditions.
+
+[crate-image]: https://img.shields.io/crates/v/keychain-services.svg
+[crate-link]: https://crates.io/crates/keychain-services
+[build-image]: https://travis-ci.org/iqlusioninc/keychain-services-rs.svg?branch=master
+[build-link]: https://travis-ci.org/iqlusioninc/keychain-services-rs
+[license-image]: https://img.shields.io/badge/license-Apache2.0/MIT-blue.svg
+[license-link]: https://github.com/iqlusioninc/keychain-services-rs/blob/master/LICENSE-APACHE
+[Documentation]: https://keychain-services.rs/docs/
+[codesign]: https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html#//apple_ref/doc/uid/TP40005929-CH4-SW4
