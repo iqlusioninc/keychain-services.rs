@@ -7,7 +7,7 @@ docs: target/doc/keychain_services
 	git reset README.md
 	git reset --hard
 	cp -r target/doc/* .
-	mv keychain_services docs
+	cp -r keychain_services docs
 	rm -rf target
 	echo 'keychain-services.rs' > CNAME
 	git add .
