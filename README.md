@@ -1,14 +1,11 @@
 # macOS Keychain Services for Rust 🔐 <a href="https://www.iqlusion.io"><img src="https://storage.googleapis.com/iqlusion-prod-web-assets/img/logo/iqlusion-rings-sm.png" alt="iqlusion" width="24" height="24"></a>
 
 [![Crate][crate-image]][crate-link]
-[![Docs][docs-image]][docs-link]
 [![Build Status][build-image]][build-link]
 [![Apache 2.0 Licensed][license-image]][license-link]
 
 [crate-image]: https://img.shields.io/crates/v/keychain-services.svg
 [crate-link]: https://crates.io/crates/keychain-services
-[docs-image]: https://docs.rs/keychain-services/badge.svg
-[docs-link]: https://docs.rs/keychain-services/
 [build-image]: https://circleci.com/gh/iqlusioninc/keychain-services-rs.svg?style=shield
 [build-link]: https://circleci.com/gh/iqlusioninc/keychain-services-rs
 [license-image]: https://img.shields.io/badge/license-Apache2.0/MIT-blue.svg
@@ -16,8 +13,6 @@
 
 Rust binding for macOS Keychain Services, including TouchID-guarded access to
 cryptographic keys stored in the Secure Enclave Processor (SEP).
-
-[Documentation][docs-link]
 
 ## Tests
 
