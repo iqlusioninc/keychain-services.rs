@@ -14,7 +14,8 @@ categories  = ["api-bindings", "authentication", "cryptography", "hardware-suppo
 keywords    = ["ecdsa", "macos", "keychain", "touchid", "signatures"]
 
 [badges]
-circle-ci = { repository = "iqlusioninc/keychain-services-rs" }
+maintenance = { status = "experimental" }
+travis-ci = { repository = "iqlusioninc/keychain-services-rs" }
 
 [dependencies]
 core-foundation = "0.6"
