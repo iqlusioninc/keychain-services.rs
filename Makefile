@@ -8,6 +8,7 @@ docs: target/doc
 	cp -r target/doc/* .
 	mv keychain_services docs
 	rm -rf target
+	echo 'keychain-services.rs' > CNAME
 	echo '<meta http-equiv="refresh" content="0;url=./docs">' > index.html
 	git add .
 	git commit -m "Generate docs using 'make docs'"
