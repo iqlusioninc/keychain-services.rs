@@ -1,17 +1,20 @@
 [package]
-name        = "keychain-services"
+name = "keychain-services"
 description = """
-              Rust access to macOS Keychain Services, including TouchID-guarded
-              access to cryptographic keys stored in the Secure Enclave
-              Processor (SEP).
-              """
-version     = "0.0.1" # Also update html_root_url in lib.rs when bumping this
-authors     = ["Tony Arcieri <tony@iqlusion.io>"]
-license     = "Apache-2.0"
-repository  = "https://github.com/iqlusioninc/keychain-services-rs/"
-readme      = "README.md"
-categories  = ["api-bindings", "authentication", "cryptography", "hardware-support"]
-keywords    = ["ecdsa", "macos", "keychain", "touchid", "signatures"]
+Rust access to macOS Keychain Services, including TouchID-guarded
+access to cryptographic keys stored in the Secure Enclave
+Processor (SEP).
+"""
+
+version       = "0.0.1"
+authors       = ["Tony Arcieri <tony@iqlusion.io>"]
+license       = "Apache-2.0"
+homepage      = "https://keychain-services.rs/"
+documentation = "https://keychain-services.rs/docs/"
+repository    = "https://github.com/iqlusioninc/keychain-services-rs/"
+readme        = "README.md"
+categories    = ["api-bindings", "authentication", "cryptography", "hardware-support"]
+keywords      = ["ecdsa", "macos", "keychain", "touchid", "signatures"]
 
 [badges]
 maintenance = { status = "experimental" }
