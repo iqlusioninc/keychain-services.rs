@@ -21,9 +21,9 @@ This crate only wraps a small part of the Keychain Services API, and presently
 only supports interacting with the default keychain (i.e. `login`). Below is a
 rough outline of the Keychain Service API and what is supported.
 
-- [ ] Keychains (`SecKeychain`)
-  - [ ] Creating keychains
-  - [ ] Deleting keychains
+- [x] Keychains (`SecKeychain`)
+  - [x] Creating keychains
+  - [x] Deleting keychains
 - [ ] Keychain Items (`SecKeychainItem`)
   - [ ] Creating keychain item attributes
   - [ ] Fetching keychain items

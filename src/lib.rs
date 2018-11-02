@@ -43,6 +43,7 @@ mod error;
 mod ffi;
 mod item;
 mod key;
+mod keychain;
 mod query;
 mod signature;
 

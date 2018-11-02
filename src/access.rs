@@ -2,7 +2,7 @@
 //! private keys stored in the keychain.
 
 use core_foundation::{
-    base::{kCFAllocatorDefault, CFOptionFlags, CFTypeRef, TCFType},
+    base::{kCFAllocatorDefault, CFOptionFlags, TCFType},
     error::CFErrorRef,
 };
 use std::{
@@ -162,12 +162,6 @@ where
         result
     }
 }
-
-/// Reference to an access control policy.
-///
-/// See `SecAccessControlRef` documentation:
-/// <https://developer.apple.com/documentation/security/secaccesscontrolref>
-type SecAccessControlRef = CFTypeRef;
 
 declare_TCFType!{
     /// Access control policy (a.k.a. ACL) for a keychain item, combining both a
