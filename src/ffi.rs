@@ -5,9 +5,25 @@ use core_foundation::{
     error::CFErrorRef,
     string::CFStringRef,
 };
-use std::os::raw::c_void;
+use std::os::raw::{c_char, c_void};
 
-use key::SecKeyRef;
+/// Reference to an access control policy.
+///
+/// See `SecAccessControlRef` documentation:
+/// <https://developer.apple.com/documentation/security/secaccesscontrolref>
+pub(crate) type SecAccessControlRef = CFTypeRef;
+
+/// Reference to a `SecKey`
+///
+/// See `SecKeyRef` documentation:
+/// <https://developer.apple.com/documentation/security/seckeyref>
+pub(crate) type SecKeyRef = CFTypeRef;
+
+/// Reference to a `SecKeychain`
+///
+/// See `SecKeychainRef` documentation:
+/// <https://developer.apple.com/documentation/security/seckeychainref>
+pub(crate) type SecKeychainRef = CFTypeRef;
 
 #[link(name = "Security", kind = "framework")]
 extern "C" {
@@ -161,4 +177,14 @@ extern "C" {
         privateKey: *mut SecKeyRef,
     ) -> OSStatus;
     pub(crate) fn SecKeyGetTypeID() -> CFTypeID;
+    pub(crate) fn SecKeychainCreate(
+        path_name: *const c_char,
+        password_length: u32,
+        password: *const c_char,
+        prompt_user: bool,
+        initial_access: CFTypeRef,
+        keychain: *mut SecKeychainRef,
+    ) -> OSStatus;
+    pub(crate) fn SecKeychainDelete(keychain_or_array: SecKeychainRef) -> OSStatus;
+    pub(crate) fn SecKeychainGetTypeID() -> CFTypeID;
 }

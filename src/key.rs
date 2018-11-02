@@ -23,12 +23,6 @@ use item::SecClass;
 use query::SecItemQueryParams;
 use signature::SecSignature;
 
-/// Reference to a `SecKey`
-///
-/// See `SecKeyRef` documentation:
-/// <https://developer.apple.com/documentation/security/seckeyref>
-pub type SecKeyRef = CFTypeRef;
-
 declare_TCFType!{
     /// Object which represents a cryptographic key.
     ///
