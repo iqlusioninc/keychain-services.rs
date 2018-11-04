@@ -17,15 +17,18 @@ which does not rely on e.g. Core Foundation types.
 
 ## Status
 
-This crate only wraps a small part of the Keychain Services API, and presently
-only supports interacting with the default keychain (i.e. `login`). Below is a
-rough outline of the Keychain Service API and what is supported.
+Below is a rough outline of the Keychain Service API and what is supported
+by this crate:
 
-- [x] Keychains (`SecKeychain`)
+- [ ] Keychains (`SecKeychain`)
   - [x] Creating keychains
   - [x] Deleting keychains
+  - [ ] Open keychain (`SecKeychainOpen`)
+  - [ ] Keychain status (`SecKeychainGetStatus`)
+  - [ ] Keychain version (`SecKeychainGetVersion`)
+  - [ ] Set default keychain (`SecKeychainSetDefault`)
 - [ ] Keychain Items (`SecKeychainItem`)
-  - [ ] Creating keychain item attributes
+  - [ ] Creating keychain items
   - [ ] Fetching keychain items
   - [ ] Getting keychain item attributes
   - [ ] Deleting keychain items

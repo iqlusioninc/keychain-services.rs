@@ -25,9 +25,16 @@ pub(crate) type SecKeyRef = CFTypeRef;
 /// <https://developer.apple.com/documentation/security/seckeychainref>
 pub(crate) type SecKeychainRef = CFTypeRef;
 
+/// Reference to a `SecKeychainItem`
+///
+/// See `SecKeychainItemRef` documentation:
+/// <https://developer.apple.com/documentation/security/seckeychainitemref>
+pub(crate) type SecKeychainItemRef = CFTypeRef;
+
 #[link(name = "Security", kind = "framework")]
 extern "C" {
     pub(crate) static kSecAttrAccessControl: CFStringRef;
+    pub(crate) static kSecAttrAccessible: CFStringRef;
     pub(crate) static kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly: CFStringRef;
     pub(crate) static kSecAttrAccessibleWhenUnlockedThisDeviceOnly: CFStringRef;
     pub(crate) static kSecAttrAccessibleWhenUnlocked: CFStringRef;
@@ -35,9 +42,9 @@ extern "C" {
     pub(crate) static kSecAttrAccessibleAfterFirstUnlock: CFStringRef;
     pub(crate) static kSecAttrAccessibleAlwaysThisDeviceOnly: CFStringRef;
     pub(crate) static kSecAttrAccessibleAlways: CFStringRef;
+    pub(crate) static kSecAttrAccount: CFStringRef;
     pub(crate) static kSecAttrApplicationLabel: CFStringRef;
     pub(crate) static kSecAttrApplicationTag: CFStringRef;
-    pub(crate) static kSecClass: CFStringRef;
     pub(crate) static kSecAttrIsPermanent: CFStringRef;
     pub(crate) static kSecAttrKeyClass: CFStringRef;
     pub(crate) static kSecAttrKeyClassPublic: CFStringRef;
@@ -49,9 +56,44 @@ extern "C" {
     pub(crate) static kSecAttrKeyTypeECSECPrimeRandom: CFStringRef;
     pub(crate) static kSecAttrKeySizeInBits: CFStringRef;
     pub(crate) static kSecAttrLabel: CFStringRef;
+    pub(crate) static kSecAttrProtocol: CFStringRef;
+    pub(crate) static kSecAttrProtocolFTP: CFStringRef;
+    pub(crate) static kSecAttrProtocolFTPAccount: CFStringRef;
+    pub(crate) static kSecAttrProtocolHTTP: CFStringRef;
+    pub(crate) static kSecAttrProtocolIRC: CFStringRef;
+    pub(crate) static kSecAttrProtocolNNTP: CFStringRef;
+    pub(crate) static kSecAttrProtocolPOP3: CFStringRef;
+    pub(crate) static kSecAttrProtocolSMTP: CFStringRef;
+    pub(crate) static kSecAttrProtocolSOCKS: CFStringRef;
+    pub(crate) static kSecAttrProtocolIMAP: CFStringRef;
+    pub(crate) static kSecAttrProtocolLDAP: CFStringRef;
+    pub(crate) static kSecAttrProtocolAppleTalk: CFStringRef;
+    pub(crate) static kSecAttrProtocolAFP: CFStringRef;
+    pub(crate) static kSecAttrProtocolTelnet: CFStringRef;
+    pub(crate) static kSecAttrProtocolSSH: CFStringRef;
+    pub(crate) static kSecAttrProtocolFTPS: CFStringRef;
+    pub(crate) static kSecAttrProtocolHTTPS: CFStringRef;
+    pub(crate) static kSecAttrProtocolHTTPProxy: CFStringRef;
+    pub(crate) static kSecAttrProtocolHTTPSProxy: CFStringRef;
+    pub(crate) static kSecAttrProtocolFTPProxy: CFStringRef;
+    pub(crate) static kSecAttrProtocolSMB: CFStringRef;
+    pub(crate) static kSecAttrProtocolRTSP: CFStringRef;
+    pub(crate) static kSecAttrProtocolRTSPProxy: CFStringRef;
+    pub(crate) static kSecAttrProtocolDAAP: CFStringRef;
+    pub(crate) static kSecAttrProtocolEPPC: CFStringRef;
+    pub(crate) static kSecAttrProtocolIPP: CFStringRef;
+    pub(crate) static kSecAttrProtocolNNTPS: CFStringRef;
+    pub(crate) static kSecAttrProtocolLDAPS: CFStringRef;
+    pub(crate) static kSecAttrProtocolTelnetS: CFStringRef;
+    pub(crate) static kSecAttrProtocolIMAPS: CFStringRef;
+    pub(crate) static kSecAttrProtocolIRCS: CFStringRef;
+    pub(crate) static kSecAttrProtocolPOP3S: CFStringRef;
+    pub(crate) static kSecAttrServer: CFStringRef;
+    pub(crate) static kSecAttrService: CFStringRef;
     pub(crate) static kSecAttrSynchronizable: CFStringRef;
     pub(crate) static kSecAttrTokenID: CFStringRef;
     pub(crate) static kSecAttrTokenIDSecureEnclave: CFStringRef;
+    pub(crate) static kSecClass: CFStringRef;
     pub(crate) static kSecClassGenericPassword: CFStringRef;
     pub(crate) static kSecClassInternetPassword: CFStringRef;
     pub(crate) static kSecClassCertificate: CFStringRef;
@@ -177,6 +219,7 @@ extern "C" {
         privateKey: *mut SecKeyRef,
     ) -> OSStatus;
     pub(crate) fn SecKeyGetTypeID() -> CFTypeID;
+    pub(crate) fn SecKeychainCopyDefault(keychain: *mut SecKeychainRef) -> OSStatus;
     pub(crate) fn SecKeychainCreate(
         path_name: *const c_char,
         password_length: u32,
@@ -187,4 +230,5 @@ extern "C" {
     ) -> OSStatus;
     pub(crate) fn SecKeychainDelete(keychain_or_array: SecKeychainRef) -> OSStatus;
     pub(crate) fn SecKeychainGetTypeID() -> CFTypeID;
+    pub(crate) fn SecKeychainItemGetTypeID() -> CFTypeID;
 }

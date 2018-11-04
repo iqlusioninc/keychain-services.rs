@@ -1,12 +1,9 @@
 //! Keys stored in macOS Keychain Services.
 
 use core_foundation::{
-    base::{CFType, CFTypeRef, TCFType},
-    boolean::CFBoolean,
+    base::{CFTypeRef, TCFType},
     data::{CFData, CFDataRef},
-    dictionary::CFDictionary,
     error::CFErrorRef,
-    number::CFNumber,
     string::{CFString, CFStringRef},
 };
 use std::{
@@ -17,10 +14,11 @@ use std::{
 use access::SecAccessControl;
 use algorithm::SecKeyAlgorithm;
 use attr::*;
+use dictionary::{CFDictionary, CFDictionaryBuilder};
 use error::Error;
 use ffi::*;
 use item::SecClass;
-use query::SecItemQueryParams;
+use query::{SecItemQueryParams, SecMatchLimit};
 use signature::SecSignature;
 
 declare_TCFType!{
@@ -38,14 +36,16 @@ impl SecKey {
     ///
     /// Wrapper for `SecItemCopyMatching`. See:
     /// <https://developer.apple.com/documentation/security/1398306-secitemcopymatching>
-    pub fn find(mut query: SecItemQueryParams) -> Result<Self, Error> {
-        query.class = Some(SecClass::Key);
-        query.return_ref = Some(true);
+    pub fn find(query: SecItemQueryParams) -> Result<Self, Error> {
+        let mut params = CFDictionaryBuilder::from(query);
+        params.add(unsafe { kSecClass }, &SecClass::Key.as_CFString());
+        params.add(unsafe { kSecMatchLimit }, &SecMatchLimit::One.as_CFType());
+        params.add_boolean(unsafe { kSecReturnRef }, true);
 
         let mut result: SecKeyRef = ptr::null_mut();
         let status = unsafe {
             SecItemCopyMatching(
-                query.into_CFDictionary().as_concrete_TypeRef(),
+                CFDictionary::from(params).as_concrete_TypeRef(),
                 &mut result as &mut CFTypeRef,
             )
         };
@@ -62,7 +62,7 @@ impl SecKey {
     /// Get the `SecAttrApplicationLabel` for this `SecKey`.
     pub fn application_label(&self) -> Option<SecAttrApplicationLabel> {
         self.attributes()
-            .find(unsafe { kSecAttrApplicationLabel })
+            .find(SecAttr::ApplicationLabel)
             .map(|tag| {
                 SecAttrApplicationLabel(unsafe {
                     CFData::wrap_under_get_rule(tag.as_CFTypeRef() as CFDataRef)
@@ -72,24 +72,20 @@ impl SecKey {
 
     /// Get the `SecAttrApplicationTag` for this `SecKey`.
     pub fn application_tag(&self) -> Option<SecAttrApplicationTag> {
-        self.attributes()
-            .find(unsafe { kSecAttrApplicationTag })
-            .map(|tag| {
-                SecAttrApplicationTag(unsafe {
-                    CFData::wrap_under_get_rule(tag.as_CFTypeRef() as CFDataRef)
-                })
+        self.attributes().find(SecAttr::ApplicationTag).map(|tag| {
+            SecAttrApplicationTag(unsafe {
+                CFData::wrap_under_get_rule(tag.as_CFTypeRef() as CFDataRef)
             })
+        })
     }
 
     /// Get the `SecAttrLabel` for this `SecKey`.
     pub fn label(&self) -> Option<SecAttrLabel> {
-        self.attributes()
-            .find(unsafe { kSecAttrLabel })
-            .map(|label| {
-                SecAttrLabel(unsafe {
-                    CFString::wrap_under_get_rule(label.as_CFTypeRef() as CFStringRef)
-                })
+        self.attributes().find(SecAttr::Label).map(|label| {
+            SecAttrLabel(unsafe {
+                CFString::wrap_under_get_rule(label.as_CFTypeRef() as CFStringRef)
             })
+        })
     }
 
     /// Create a cryptographic signature of the given data using this key.
@@ -149,7 +145,7 @@ impl SecKey {
     ///
     /// Wrapper for `SecKeyCopyAttributes`. See:
     /// <https://developer.apple.com/documentation/security/1643699-seckeycopyattributes>
-    fn attributes(&self) -> CFDictionary<CFString, CFType> {
+    fn attributes(&self) -> CFDictionary {
         unsafe {
             CFDictionary::wrap_under_get_rule(SecKeyCopyAttributes(self.as_concrete_TypeRef()))
         }
@@ -190,7 +186,7 @@ impl SecKeyPair {
 
         let status = unsafe {
             SecKeyGeneratePair(
-                params.into_CFDictionary().as_concrete_TypeRef(),
+                CFDictionary::from(params).as_concrete_TypeRef(),
                 &mut public_key_ref,
                 &mut private_key_ref,
             )
@@ -220,45 +216,20 @@ impl SecKeyPair {
 ///
 /// For more information on generating cryptographic keys in a keychain, see:
 /// <https://developer.apple.com/documentation/security/certificate_key_and_trust_services/keys/generating_new_cryptographic_keys>
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SecKeyGeneratePairParams {
-    /// Access control policy (a.k.a. ACL)
-    access_control: Option<SecAccessControl>,
-
-    /// Private application-specific tag data
-    application_tag: Option<SecAttrApplicationTag>,
-
-    /// Type of key pair to generate
     key_type: SecAttrKeyType,
-
-    /// Key size to generate
     key_size: usize,
-
-    /// SecAttrLabel for this key
-    label: Option<SecAttrLabel>,
-
-    /// Is this key permanent?
-    permanent: bool,
-
-    /// Can the key be synchronized between devices?
-    synchronizable: bool,
-
-    /// Store this key in an external token with the given ID
-    token_id: Option<SecAttrTokenId>,
+    attrs: CFDictionaryBuilder,
 }
 
 impl SecKeyGeneratePairParams {
     /// Create a new `SecKeyGeneratePairParams`
     pub fn new(key_type: SecAttrKeyType, key_size: usize) -> Self {
-        SecKeyGeneratePairParams {
-            access_control: None,
-            application_tag: None,
+        Self {
             key_type,
             key_size,
-            label: None,
-            permanent: false,
-            synchronizable: false,
-            token_id: None,
+            attrs: <_>::default(),
         }
     }
 
@@ -266,8 +237,9 @@ impl SecKeyGeneratePairParams {
     ///
     /// Wrapper for the `kSecAttrAccessControl` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattraccesscontrol>
-    pub fn access_control(mut self, access_control: SecAccessControl) -> Self {
-        self.access_control = Some(access_control);
+    pub fn access_control(mut self, access_control: &SecAccessControl) -> Self {
+        self.attrs
+            .add(SecAttr::AccessControl, &access_control.as_CFType());
         self
     }
 
@@ -280,7 +252,7 @@ impl SecKeyGeneratePairParams {
     where
         T: Into<SecAttrApplicationTag>,
     {
-        self.application_tag = Some(tag.into());
+        self.attrs.add_attr(&tag.into());
         self
     }
 
@@ -289,7 +261,7 @@ impl SecKeyGeneratePairParams {
     /// Wrapper for the `kSecAttrIsPermanent` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrispermanent>
     pub fn permanent(mut self, value: bool) -> Self {
-        self.permanent = value;
+        self.attrs.add_boolean(SecAttr::IsPermanent, value);
         self
     }
 
@@ -299,7 +271,7 @@ impl SecKeyGeneratePairParams {
     /// Wrapper for the `kSecAttrLabel` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrlabel>
     pub fn label<L: Into<SecAttrLabel>>(mut self, label: L) -> Self {
-        self.label = Some(label.into());
+        self.attrs.add_attr(&label.into());
         self
     }
 
@@ -309,7 +281,7 @@ impl SecKeyGeneratePairParams {
     /// Wrapper for the `kSecAttrSynchronizable` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrsynchronizable>
     pub fn synchronizable(mut self, value: bool) -> Self {
-        self.synchronizable = value;
+        self.attrs.add_boolean(SecAttr::Synchronizable, value);
         self
     }
 
@@ -318,69 +290,20 @@ impl SecKeyGeneratePairParams {
     /// Wrapper for the `kSecAttrTokenID` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrtokenid>
     pub fn token_id(mut self, value: SecAttrTokenId) -> Self {
-        self.token_id = Some(value);
+        self.attrs.add_attr(&value);
         self
     }
+}
 
-    /// Generate a `SecKeyPair` using the options configured in this builder.
-    ///
-    /// Wrapper for the `SecKeyGeneratePair` function. See:
-    /// <https://developer.apple.com/documentation/security/1395339-seckeygeneratepair>
-    pub fn into_CFDictionary(self) -> CFDictionary<CFType, CFType> {
-        let mut private_key_attrs = vec![
-            (
-                unsafe { CFString::wrap_under_get_rule(kSecAttrIsPermanent) }.as_CFType(),
-                CFBoolean::from(self.permanent).as_CFType(),
-            ),
-            (
-                unsafe { CFString::wrap_under_get_rule(kSecAttrSynchronizable) }.as_CFType(),
-                CFBoolean::from(self.synchronizable).as_CFType(),
-            ),
-        ];
-
-        if let Some(access_control) = self.access_control {
-            private_key_attrs.push((
-                unsafe { CFString::wrap_under_get_rule(kSecAttrAccessControl) }.as_CFType(),
-                access_control.as_CFType(),
-            ));
-        }
-
-        if let Some(application_tag) = self.application_tag {
-            private_key_attrs.push((
-                unsafe { CFString::wrap_under_get_rule(kSecAttrApplicationTag) }.as_CFType(),
-                application_tag.as_CFType(),
-            ));
-        }
-
-        if let Some(label) = self.label {
-            private_key_attrs.push((
-                unsafe { CFString::wrap_under_get_rule(kSecAttrLabel) }.as_CFType(),
-                label.as_CFType(),
-            ))
-        }
-
-        let mut params = vec![
-            (
-                unsafe { CFString::wrap_under_get_rule(kSecAttrKeyType) }.as_CFType(),
-                self.key_type.as_CFString().as_CFType(),
-            ),
-            (
-                unsafe { CFString::wrap_under_get_rule(kSecAttrKeySizeInBits) }.as_CFType(),
-                CFNumber::from(self.key_size as i64).as_CFType(),
-            ),
-            (
-                unsafe { CFString::wrap_under_get_rule(kSecPrivateKeyAttrs) }.as_CFType(),
-                CFDictionary::from_CFType_pairs(&private_key_attrs).as_CFType(),
-            ),
-        ];
-
-        if let Some(token_id) = self.token_id {
-            params.push((
-                unsafe { CFString::wrap_under_get_rule(kSecAttrTokenID) }.as_CFType(),
-                token_id.as_CFString().as_CFType(),
-            ))
-        }
-
-        CFDictionary::from_CFType_pairs(&params)
+impl From<SecKeyGeneratePairParams> for CFDictionary {
+    fn from(params: SecKeyGeneratePairParams) -> CFDictionary {
+        let mut result = CFDictionaryBuilder::new();
+        result.add_attr(&params.key_type);
+        result.add_number(SecAttr::KeySizeInBits, params.key_size as i64);
+        result.add(
+            unsafe { kSecPrivateKeyAttrs },
+            &CFDictionary::from(params.attrs),
+        );
+        result.into()
     }
 }

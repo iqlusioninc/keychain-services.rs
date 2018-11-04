@@ -19,7 +19,7 @@ fn generate_and_sign_with_ecdsa_keys() {
             .unwrap();
 
     let generate_params =
-        SecKeyGeneratePairParams::new(SecAttrKeyType::EcSecPrimeRandom, 256).access_control(acl);
+        SecKeyGeneratePairParams::new(SecAttrKeyType::EcSecPrimeRandom, 256).access_control(&acl);
 
     let keypair = SecKeyPair::generate(generate_params).unwrap();
 
