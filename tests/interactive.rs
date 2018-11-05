@@ -18,7 +18,7 @@ fn generate_keypair(tag: &str, label: &str) -> KeyPair {
     let acl = SecAccessControl::create_with_flags(AttrAccessible::WhenUnlocked, Default::default())
         .unwrap();
 
-    let generate_params = GeneratePairParams::new(AttrKeyType::EcSecPrimeRandom, 256)
+    let generate_params = KeyPairGenerateParams::new(AttrKeyType::EcSecPrimeRandom, 256)
         .access_control(acl)
         .application_tag(tag)
         .label(label)

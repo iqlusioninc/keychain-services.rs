@@ -6,6 +6,10 @@ use std::{ffi::CString, os::raw::c_char, os::unix::ffi::OsStrExt, path::Path, pt
 use error::Error;
 use ffi::*;
 
+mod item;
+
+pub use self::item::{class::*, query::*, KeychainItem};
+
 declare_TCFType!{
     /// Keychains which store cryptographic keys, passwords, and other secrets.
     ///
