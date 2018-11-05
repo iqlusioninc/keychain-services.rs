@@ -7,7 +7,7 @@ use core_foundation::{
 };
 
 use attr::*;
-use dictionary::CFDictionaryBuilder;
+use dictionary::DictionaryBuilder;
 use ffi::*;
 
 /// Limit the number of matched items to one or an unlimited number.
@@ -15,7 +15,7 @@ use ffi::*;
 /// Wrapper for the `kSecMatchLimit` attribute key. See:
 /// <https://developer.apple.com/documentation/security/ksecmatchlimit>
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum SecMatchLimit {
+pub enum MatchLimit {
     /// Match exactly one item.
     ///
     /// Wrapper for the `kSecMatchLimitOne` attribute value. See:
@@ -36,16 +36,16 @@ pub enum SecMatchLimit {
     All,
 }
 
-impl SecMatchLimit {
+impl MatchLimit {
     /// Get `CFType` containing the `kSecMatchLimit` dictionary value for
     /// this particular `SecMatchLimit`.
     pub fn as_CFType(self) -> CFType {
         match self {
-            SecMatchLimit::One => {
+            MatchLimit::One => {
                 unsafe { CFString::wrap_under_get_rule(kSecMatchLimitOne) }.as_CFType()
             }
-            SecMatchLimit::Number(n) => CFNumber::from(n as i64).as_CFType(),
-            SecMatchLimit::All => {
+            MatchLimit::Number(n) => CFNumber::from(n as i64).as_CFType(),
+            MatchLimit::All => {
                 unsafe { CFString::wrap_under_get_rule(kSecMatchLimitAll) }.as_CFType()
             }
         }
@@ -57,9 +57,9 @@ impl SecMatchLimit {
 /// For more information, see "Search Attribute Keys and Values":
 /// <https://developer.apple.com/documentation/security/keychain_services/keychain_items/search_attribute_keys_and_values>
 #[derive(Default, Debug)]
-pub struct SecItemQueryParams(CFDictionaryBuilder);
+pub struct ItemQuery(DictionaryBuilder);
 
-impl SecItemQueryParams {
+impl ItemQuery {
     /// Create a new keychain item query builder
     pub fn new() -> Self {
         Self::default()
@@ -74,7 +74,7 @@ impl SecItemQueryParams {
     ///
     /// Wrapper for the `kSecAttrApplicationLabel` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrlabel>
-    pub fn application_label<L: Into<SecAttrApplicationLabel>>(mut self, label: L) -> Self {
+    pub fn application_label<L: Into<AttrApplicationLabel>>(mut self, label: L) -> Self {
         self.0.add_attr(&label.into());
         self
     }
@@ -85,7 +85,7 @@ impl SecItemQueryParams {
     /// <https://developer.apple.com/documentation/security/ksecattrapplicationtag>
     pub fn application_tag<T>(mut self, tag: T) -> Self
     where
-        T: Into<SecAttrApplicationTag>,
+        T: Into<AttrApplicationTag>,
     {
         self.0.add_attr(&tag.into());
         self
@@ -95,7 +95,7 @@ impl SecItemQueryParams {
     ///
     /// Wrapper for the `kSecAttrKeyClass` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrkeyclass>
-    pub fn key_class(mut self, key_class: SecAttrKeyClass) -> Self {
+    pub fn key_class(mut self, key_class: AttrKeyClass) -> Self {
         self.0.add_attr(&key_class);
         self
     }
@@ -104,7 +104,7 @@ impl SecItemQueryParams {
     ///
     /// Wrapper for the `kSecAttrKeyType` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrkeytype>
-    pub fn key_type(mut self, key_type: SecAttrKeyType) -> Self {
+    pub fn key_type(mut self, key_type: AttrKeyType) -> Self {
         self.0.add_attr(&key_type);
         self
     }
@@ -113,7 +113,7 @@ impl SecItemQueryParams {
     ///
     /// Wrapper for the `kSecAttrLabel` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrlabel>
-    pub fn label<L: Into<SecAttrLabel>>(mut self, label: L) -> Self {
+    pub fn label<L: Into<AttrLabel>>(mut self, label: L) -> Self {
         self.0.add_attr(&label.into());
         self
     }
@@ -123,7 +123,7 @@ impl SecItemQueryParams {
     /// Wrapper for the `kSecAttrIsPermanent` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrispermanent>
     pub fn permanent(mut self, value: bool) -> Self {
-        self.0.add_boolean(SecAttr::IsPermanent, value);
+        self.0.add_boolean(Attr::IsPermanent, value);
         self
     }
 
@@ -132,7 +132,7 @@ impl SecItemQueryParams {
     /// Wrapper for the `kSecAttrSynchronizable` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrsynchronizable>
     pub fn synchronizable(mut self, value: bool) -> Self {
-        self.0.add_boolean(SecAttr::Synchronizable, value);
+        self.0.add_boolean(Attr::Synchronizable, value);
         self
     }
 
@@ -141,7 +141,7 @@ impl SecItemQueryParams {
     ///
     /// Wrapper for the `kSecAttrTokenID` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrtokenid>
-    pub fn token_id(mut self, value: SecAttrTokenId) -> Self {
+    pub fn token_id(mut self, value: AttrTokenId) -> Self {
         self.0.add_attr(&value);
         self
     }
@@ -157,8 +157,8 @@ impl SecItemQueryParams {
     }
 }
 
-impl From<SecItemQueryParams> for CFDictionaryBuilder {
-    fn from(params: SecItemQueryParams) -> CFDictionaryBuilder {
+impl From<ItemQuery> for DictionaryBuilder {
+    fn from(params: ItemQuery) -> DictionaryBuilder {
         params.0
     }
 }

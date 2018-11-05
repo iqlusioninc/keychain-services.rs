@@ -3,24 +3,24 @@
 //! This type doesn't map directly to any type in the Keychain Services API,
 //! but instead provides a newtype for signatures this binding produces.
 
-use algorithm::SecKeyAlgorithm;
+use algorithm::KeyAlgorithm;
 
 /// Cryptographic signatures
 #[derive(Clone, Debug)]
-pub struct SecSignature {
-    alg: SecKeyAlgorithm,
+pub struct Signature {
+    alg: KeyAlgorithm,
     bytes: Vec<u8>,
 }
 
-impl SecSignature {
+impl Signature {
     /// Create a new `Signature`
-    pub(crate) fn new(alg: SecKeyAlgorithm, bytes: Vec<u8>) -> Self {
+    pub(crate) fn new(alg: KeyAlgorithm, bytes: Vec<u8>) -> Self {
         // TODO: restrict valid algorithms to signature algorithms?
         Self { alg, bytes }
     }
 
     /// Get the algorithm which produced this signature
-    pub fn algorithm(&self) -> SecKeyAlgorithm {
+    pub fn algorithm(&self) -> KeyAlgorithm {
         self.alg
     }
 
@@ -35,14 +35,14 @@ impl SecSignature {
     }
 }
 
-impl AsRef<[u8]> for SecSignature {
+impl AsRef<[u8]> for Signature {
     fn as_ref(&self) -> &[u8] {
         self.as_bytes()
     }
 }
 
-impl From<SecSignature> for Vec<u8> {
-    fn from(sig: SecSignature) -> Vec<u8> {
+impl From<Signature> for Vec<u8> {
+    fn from(sig: Signature) -> Vec<u8> {
         sig.into_vec()
     }
 }

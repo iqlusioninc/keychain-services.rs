@@ -10,12 +10,12 @@ use std::{
     ptr,
 };
 
-use attr::SecAttrAccessible;
+use attr::AttrAccessible;
 use error::Error;
 use ffi::*;
 
-/// Marker trait for types which can be used as `SecAccessControlFlags`.
-pub trait SecAccessControlFlag: Copy + Clone + Sized + Into<CFOptionFlags> {}
+/// Marker trait for types which can be used as `AccessControlFlags`.
+pub trait AccessControlFlag: Copy + Clone + Sized + Into<CFOptionFlags> {}
 
 /// Constraints on keychain item access.
 ///
@@ -23,7 +23,7 @@ pub trait SecAccessControlFlag: Copy + Clone + Sized + Into<CFOptionFlags> {}
 /// `SecAccessControlCreateFlags` documentation at:
 /// <https://developer.apple.com/documentation/security/secaccesscontrolcreateflags>
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub enum SecAccessConstraint {
+pub enum AccessConstraint {
     /// Require either passcode or biometric auth (TouchID/FaceID).
     ///
     /// Wrapper for `kSecAccessControlUserPresence`. See:
@@ -49,15 +49,15 @@ pub enum SecAccessConstraint {
     DevicePasscode,
 }
 
-impl SecAccessControlFlag for SecAccessConstraint {}
+impl AccessControlFlag for AccessConstraint {}
 
-impl From<SecAccessConstraint> for CFOptionFlags {
-    fn from(constraint: SecAccessConstraint) -> CFOptionFlags {
+impl From<AccessConstraint> for CFOptionFlags {
+    fn from(constraint: AccessConstraint) -> CFOptionFlags {
         match constraint {
-            SecAccessConstraint::UserPresence => 1,
-            SecAccessConstraint::BiometryAny => 1 << 1,
-            SecAccessConstraint::BiometryCurrentSet => 1 << 3,
-            SecAccessConstraint::DevicePasscode => 1 << 4,
+            AccessConstraint::UserPresence => 1,
+            AccessConstraint::BiometryAny => 1 << 1,
+            AccessConstraint::BiometryCurrentSet => 1 << 3,
+            AccessConstraint::DevicePasscode => 1 << 4,
         }
     }
 }
@@ -68,7 +68,7 @@ impl From<SecAccessConstraint> for CFOptionFlags {
 /// `SecAccessControlCreateFlags` documentation at:
 /// <https://developer.apple.com/documentation/security/secaccesscontrolcreateflags>
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub enum SecAccessConjunction {
+pub enum AccessConjunction {
     /// Require *all* constraints be satisfied.
     ///
     /// Wrapper for `kSecAccessControlAnd`. See:
@@ -82,13 +82,13 @@ pub enum SecAccessConjunction {
     Or,
 }
 
-impl SecAccessControlFlag for SecAccessConjunction {}
+impl AccessControlFlag for AccessConjunction {}
 
-impl From<SecAccessConjunction> for CFOptionFlags {
-    fn from(conjunction: SecAccessConjunction) -> CFOptionFlags {
+impl From<AccessConjunction> for CFOptionFlags {
+    fn from(conjunction: AccessConjunction) -> CFOptionFlags {
         match conjunction {
-            SecAccessConjunction::Or => 1 << 14,
-            SecAccessConjunction::And => 1 << 15,
+            AccessConjunction::Or => 1 << 14,
+            AccessConjunction::And => 1 << 15,
         }
     }
 }
@@ -99,7 +99,7 @@ impl From<SecAccessConjunction> for CFOptionFlags {
 /// `SecAccessControlCreateFlags` documentation at:
 /// <https://developer.apple.com/documentation/security/secaccesscontrolcreateflags>
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub enum SecAccessOption {
+pub enum AccessOption {
     /// Require private key be stored in the device's Secure Enclave.
     ///
     /// Wrapper for `kSecAccessControlApplicationPassword`. See:
@@ -113,13 +113,13 @@ pub enum SecAccessOption {
     ApplicationPassword,
 }
 
-impl SecAccessControlFlag for SecAccessOption {}
+impl AccessControlFlag for AccessOption {}
 
-impl From<SecAccessOption> for CFOptionFlags {
-    fn from(option: SecAccessOption) -> CFOptionFlags {
+impl From<AccessOption> for CFOptionFlags {
+    fn from(option: AccessOption) -> CFOptionFlags {
         match option {
-            SecAccessOption::PrivateKeyUsage => 1 << 30,
-            SecAccessOption::ApplicationPassword => 1 << 31,
+            AccessOption::PrivateKeyUsage => 1 << 30,
+            AccessOption::ApplicationPassword => 1 << 31,
         }
     }
 }
@@ -132,28 +132,28 @@ impl From<SecAccessOption> for CFOptionFlags {
 /// Wrapper for the `SecAccessControlCreateFlags` type:
 /// <https://developer.apple.com/documentation/security/secaccesscontrolcreateflags>
 #[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
-pub struct SecAccessControlFlags(CFOptionFlags);
+pub struct AccessControlFlags(CFOptionFlags);
 
-impl SecAccessControlFlags {
+impl AccessControlFlags {
     /// Create `SecAccessControlFlags` with no policy set
     pub fn new() -> Self {
         Self::default()
     }
 
-    /// Add an `SecAccessControlFlag` to this set of flags.
+    /// Add an `AccessControlFlag` to this set of flags.
     // TODO: handle illegal combinations of flags?
-    pub fn add<F: SecAccessControlFlag>(&mut self, flag: F) {
+    pub fn add<F: AccessControlFlag>(&mut self, flag: F) {
         self.0 |= flag.into();
     }
 }
 
 /// Shorthand syntax for when flags are all of the same type
-impl<'a, F> From<&'a [F]> for SecAccessControlFlags
+impl<'a, F> From<&'a [F]> for AccessControlFlags
 where
-    F: SecAccessControlFlag,
+    F: AccessControlFlag,
 {
-    fn from(flags: &[F]) -> SecAccessControlFlags {
-        let mut result = SecAccessControlFlags::new();
+    fn from(flags: &[F]) -> AccessControlFlags {
+        let mut result = AccessControlFlags::new();
 
         for flag in flags {
             result.add(*flag)
@@ -165,27 +165,23 @@ where
 
 declare_TCFType!{
     /// Access control policy (a.k.a. ACL) for a keychain item, combining both a
-    /// set of `SecAccessControlFlags` and a `SecAttrAccessible` restriction.
+    /// set of `AccessControlFlags` and a `AttrAccessible` restriction.
     ///
     /// Wrapper for the `SecAccessControl`/`SecAccessControlRef` types:
     /// <https://developer.apple.com/documentation/security/secaccesscontrolref>
-    SecAccessControl, SecAccessControlRef
+    AccessControl, AccessControlRef
 }
 
-impl_TCFType!(
-    SecAccessControl,
-    SecAccessControlRef,
-    SecAccessControlGetTypeID
-);
+impl_TCFType!(AccessControl, AccessControlRef, SecAccessControlGetTypeID);
 
-impl SecAccessControl {
+impl AccessControl {
     /// Create a new `AccessControl` policy/ACL.
     ///
     /// Wrapper for the `SecAccessControlCreateWithFlags()` function:
     /// <https://developer.apple.com/documentation/security/1394452-secaccesscontrolcreatewithflags>
     pub fn create_with_flags(
-        protection: SecAttrAccessible,
-        flags: SecAccessControlFlags,
+        protection: AttrAccessible,
+        flags: AccessControlFlags,
     ) -> Result<Self, Error> {
         let mut error: CFErrorRef = ptr::null_mut();
 
@@ -206,9 +202,9 @@ impl SecAccessControl {
     }
 }
 
-impl Debug for SecAccessControl {
+impl Debug for AccessControl {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // TODO: display more information about `SecAccessControl`s
+        // TODO: display more information about `AccessControl`s
         write!(f, "SecAccessControl {{ ... }}")
     }
 }

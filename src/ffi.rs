@@ -11,25 +11,25 @@ use std::os::raw::{c_char, c_void};
 ///
 /// See `SecAccessControlRef` documentation:
 /// <https://developer.apple.com/documentation/security/secaccesscontrolref>
-pub(crate) type SecAccessControlRef = CFTypeRef;
+pub(crate) type AccessControlRef = CFTypeRef;
 
-/// Reference to a `SecKey`
+/// Reference to a `Key`
 ///
 /// See `SecKeyRef` documentation:
 /// <https://developer.apple.com/documentation/security/seckeyref>
-pub(crate) type SecKeyRef = CFTypeRef;
+pub(crate) type KeyRef = CFTypeRef;
 
-/// Reference to a `SecKeychain`
+/// Reference to a `Keychain`
 ///
 /// See `SecKeychainRef` documentation:
 /// <https://developer.apple.com/documentation/security/seckeychainref>
-pub(crate) type SecKeychainRef = CFTypeRef;
+pub(crate) type KeychainRef = CFTypeRef;
 
-/// Reference to a `SecKeychainItem`
+/// Reference to a `KeychainItem`
 ///
 /// See `SecKeychainItemRef` documentation:
 /// <https://developer.apple.com/documentation/security/seckeychainitemref>
-pub(crate) type SecKeychainItemRef = CFTypeRef;
+pub(crate) type KeychainItemRef = CFTypeRef;
 
 #[link(name = "Security", kind = "framework")]
 extern "C" {
@@ -202,33 +202,33 @@ extern "C" {
         reserved: *const c_void,
     ) -> CFStringRef;
     pub(crate) fn SecItemCopyMatching(query: CFDictionaryRef, result: *mut CFTypeRef) -> OSStatus;
-    pub(crate) fn SecKeyCopyAttributes(key: SecKeyRef) -> CFDictionaryRef;
+    pub(crate) fn SecKeyCopyAttributes(key: KeyRef) -> CFDictionaryRef;
     pub(crate) fn SecKeyCopyExternalRepresentation(
-        key: SecKeyRef,
+        key: KeyRef,
         error: *mut CFErrorRef,
     ) -> CFDataRef;
     pub(crate) fn SecKeyCreateSignature(
-        key: SecKeyRef,
+        key: KeyRef,
         algorithm: CFTypeRef,
         data_to_sign: CFDataRef,
         error: *mut CFErrorRef,
     ) -> CFDataRef;
     pub(crate) fn SecKeyGeneratePair(
         parameters: CFDictionaryRef,
-        publicKey: *mut SecKeyRef,
-        privateKey: *mut SecKeyRef,
+        publicKey: *mut KeyRef,
+        privateKey: *mut KeyRef,
     ) -> OSStatus;
     pub(crate) fn SecKeyGetTypeID() -> CFTypeID;
-    pub(crate) fn SecKeychainCopyDefault(keychain: *mut SecKeychainRef) -> OSStatus;
+    pub(crate) fn SecKeychainCopyDefault(keychain: *mut KeychainRef) -> OSStatus;
     pub(crate) fn SecKeychainCreate(
         path_name: *const c_char,
         password_length: u32,
         password: *const c_char,
         prompt_user: bool,
         initial_access: CFTypeRef,
-        keychain: *mut SecKeychainRef,
+        keychain: *mut KeychainRef,
     ) -> OSStatus;
-    pub(crate) fn SecKeychainDelete(keychain_or_array: SecKeychainRef) -> OSStatus;
+    pub(crate) fn SecKeychainDelete(keychain_or_array: KeychainRef) -> OSStatus;
     pub(crate) fn SecKeychainGetTypeID() -> CFTypeID;
     pub(crate) fn SecKeychainItemGetTypeID() -> CFTypeID;
 }
