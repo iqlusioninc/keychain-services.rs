@@ -63,22 +63,17 @@ extern crate failure;
 extern crate failure_derive;
 
 mod access;
-mod algorithm;
 mod attr;
 mod dictionary;
 mod error;
 mod ffi;
-mod item;
-mod key;
-mod keychain;
-mod query;
+pub mod key;
+pub mod keychain;
 mod signature;
 
 pub use access::*;
-pub use algorithm::*;
 pub use attr::*;
 pub use error::*;
-pub use item::*;
 pub use key::*;
-pub use query::*;
+pub use keychain::*;
 pub use signature::*;

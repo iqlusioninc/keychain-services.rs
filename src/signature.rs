@@ -3,7 +3,7 @@
 //! This type doesn't map directly to any type in the Keychain Services API,
 //! but instead provides a newtype for signatures this binding produces.
 
-use algorithm::KeyAlgorithm;
+use key::KeyAlgorithm;
 
 /// Cryptographic signatures
 #[derive(Clone, Debug)]

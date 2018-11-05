@@ -18,7 +18,7 @@ fn generate_and_sign_with_ecdsa_keys() {
         AccessControl::create_with_flags(AttrAccessible::WhenUnlocked, Default::default()).unwrap();
 
     let generate_params =
-        GeneratePairParams::new(AttrKeyType::EcSecPrimeRandom, 256).access_control(&acl);
+        KeyPairGenerateParams::new(AttrKeyType::EcSecPrimeRandom, 256).access_control(&acl);
 
     let keypair = KeyPair::generate(generate_params).unwrap();
 
