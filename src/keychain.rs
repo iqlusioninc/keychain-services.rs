@@ -7,7 +7,7 @@ use error::Error;
 use ffi::*;
 
 declare_TCFType!{
-    /// Object which represents a keychain.
+    /// Keychains which store cryptographic keys, passwords, and other secrets.
     ///
     /// Wrapper for the `SecKeychain`/`SecKeychainRef` types:
     /// <https://developer.apple.com/documentation/security/seckeychainref>
@@ -17,6 +17,24 @@ declare_TCFType!{
 impl_TCFType!(SecKeychain, SecKeychainRef, SecKeychainGetTypeID);
 
 impl SecKeychain {
+    /// Find the default keychain. Returns an `Error` result with a kind of
+    /// `ErrorKind::NoDefaultKeychain` if there is no default keychain.
+    ///
+    /// This is a non-panicking alternative to `SecKeychain::default()`.
+    ///
+    /// Wrapper for the `SecKeychainCopyDefault` function. See:
+    /// <https://developer.apple.com/documentation/security/1400743-seckeychaincopydefault>
+    pub fn find_default() -> Result<SecKeychain, Error> {
+        let mut result: SecKeychainRef = ptr::null_mut();
+        let status = unsafe { SecKeychainCopyDefault(&mut result) };
+
+        if let Some(e) = Error::maybe_from_OSStatus(status) {
+            Err(e)
+        } else {
+            Ok(unsafe { SecKeychain::wrap_under_create_rule(result) })
+        }
+    }
+
     /// Create a new keychain. Accepts a path where the new keychain will be
     /// located along with an optional password. If no password is given, the
     /// user will be prompted for a password.
@@ -51,10 +69,10 @@ impl SecKeychain {
         };
 
         if let Some(e) = Error::maybe_from_OSStatus(status) {
-            return Err(e);
+            Err(e)
+        } else {
+            Ok(unsafe { SecKeychain::wrap_under_create_rule(result) })
         }
-
-        Ok(unsafe { SecKeychain::wrap_under_create_rule(result) })
     }
 
     /// Delete this keychain.
@@ -69,5 +87,11 @@ impl SecKeychain {
         } else {
             Ok(())
         }
+    }
+}
+
+impl Default for SecKeychain {
+    fn default() -> SecKeychain {
+        Self::find_default().expect("no default SecKeychain available")
     }
 }

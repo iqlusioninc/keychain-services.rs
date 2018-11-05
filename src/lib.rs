@@ -9,8 +9,34 @@
 //! For more information on Keychain Services`, see:
 //! <https://developer.apple.com/documentation/security/keychain_services/keychains>
 //!
-//! TODO: merge this into the `security-framework` crate:
-//! <https://crates.io/crates/security-framework>
+//! ## Code Signing
+//!
+//! The Keychain Service API requires signed code to access much of its
+//! functionality. Accessing many APIs from an unsigned app will return
+//! an error with a kind of `ErrorKind::MissingEntitlement`.
+//!
+//! Follow the instructions here to create a self-signed code signing certificate:
+//! <https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html>
+//!
+//! You will need to use the [codesign] command-line utility (or XCode) to sign
+//! your code before it will be able to access most Keychain Services API
+//! functionality. When you sign, you will need an entitlements file which
+//! grants access to the Keychain Services API. Below is an example:
+//!
+//! ```xml
+//! <?xml version="1.0" encoding="UTF-8"?>
+//! <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+//! <plist version="1.0">
+//! <dict>
+//!	<key>keychain-access-groups</key>
+//!	<array>
+//!		<string>$(AppIdentifierPrefix)com.example.MyApplication</string>
+//!	</array>
+//! </dict>
+//! </plist>
+//! ```
+//!
+//! [codesign]: https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html#//apple_ref/doc/uid/TP40005929-CH4-SW4
 
 #![crate_name = "keychain_services"]
 #![crate_type = "rlib"]
@@ -39,6 +65,7 @@ extern crate failure_derive;
 mod access;
 mod algorithm;
 mod attr;
+mod dictionary;
 mod error;
 mod ffi;
 mod item;

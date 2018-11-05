@@ -1,16 +1,122 @@
-/// Keychain item attributes (i.e. `SecAttr*`)
-// TODO: write a macro to impl `as_CFString` for these
+//! Keychain item attributes (i.e. `SecAttr*`)
+
 use core_foundation::{
-    base::{CFType, TCFType},
+    base::{CFType, TCFType, ToVoid},
     data::CFData,
-    string::CFString,
+    string::{CFString, CFStringRef},
 };
 use std::{
+    ffi::c_void,
     fmt::{self, Debug, Display},
     str::{self, Utf8Error},
 };
 
 use ffi::*;
+
+/// Trait implemented by all `SecAttr*` types to simplify adding them to
+/// attribute dictionaries.
+pub(crate) trait TSecAttr {
+    /// Get the attribute kind (i.e. `SecAttr` enum variant) for this attribute
+    fn kind(&self) -> SecAttr;
+
+    /// Get a `CFType` object representing this attribute.
+    fn as_CFType(&self) -> CFType;
+}
+
+/// Enum of attribute types passed in parameter dictionaries. This wraps up
+/// access to framework constants which would otherwise be unsafe.
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub(crate) enum SecAttr {
+    /// Wrapper for the `kSecAttrAccessControl` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattraccesscontrol>
+    AccessControl,
+
+    /// Wrapper for the `kSecAttrAccessible` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattraccessible>
+    Accessible,
+
+    /// Wrapper for the `kSecAttrAccount` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattraccount>
+    Account,
+
+    /// Wrapper for the `kSecAttrApplicationLabel` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrlabel>
+    ApplicationLabel,
+
+    /// Wrapper for the `kSecAttrApplicationTag` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrapplicationtag>
+    ApplicationTag,
+
+    /// Wrapper for the `kSecAttrKeyClass` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrkeyclass>
+    KeyClass,
+
+    /// Wrapper for the `kSecAttrKeySizeInBits` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrkeysizeinbits>
+    KeySizeInBits,
+
+    /// Wrapper for the `kSecAttrKeyType` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrkeytype>
+    KeyType,
+
+    /// Wrapper for the `kSecAttrIsPermanent` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrispermanent>
+    IsPermanent,
+
+    /// Wrapper for the `kSecAttrLabel` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrlabel>
+    Label,
+
+    /// Wrapper for the `kSecAttrProtocol` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrprotocol>
+    Protocol,
+
+    /// Wrapper for the `kSecAttrServer` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrserver>
+    Server,
+
+    /// Wrapper for the `kSecAttrService` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrservice>
+    Service,
+
+    /// Wrapper for the `kSecAttrSynchronizable` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrsynchronizable>
+    Synchronizable,
+
+    /// Wrapper for the `kSecAttrTokenID` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrtokenid>
+    TokenId,
+}
+
+impl From<SecAttr> for CFStringRef {
+    fn from(attr: SecAttr) -> CFStringRef {
+        unsafe {
+            match attr {
+                SecAttr::AccessControl => kSecAttrAccessControl,
+                SecAttr::Accessible => kSecAttrAccessible,
+                SecAttr::Account => kSecAttrAccount,
+                SecAttr::ApplicationLabel => kSecAttrApplicationLabel,
+                SecAttr::ApplicationTag => kSecAttrApplicationTag,
+                SecAttr::KeyClass => kSecAttrKeyClass,
+                SecAttr::KeySizeInBits => kSecAttrKeySizeInBits,
+                SecAttr::KeyType => kSecAttrKeyType,
+                SecAttr::IsPermanent => kSecAttrIsPermanent,
+                SecAttr::Label => kSecAttrLabel,
+                SecAttr::Protocol => kSecAttrProtocol,
+                SecAttr::Server => kSecAttrServer,
+                SecAttr::Service => kSecAttrService,
+                SecAttr::Synchronizable => kSecAttrSynchronizable,
+                SecAttr::TokenId => kSecAttrTokenID,
+            }
+        }
+    }
+}
+
+unsafe impl ToVoid<CFType> for SecAttr {
+    fn to_void(&self) -> *const c_void {
+        CFStringRef::from(*self).to_void()
+    }
+}
 
 /// Keychain item accessibility restrictions (from most to least restrictive).
 ///
@@ -76,6 +182,16 @@ impl SecAttrAccessible {
     }
 }
 
+impl TSecAttr for SecAttrAccessible {
+    fn kind(&self) -> SecAttr {
+        SecAttr::Accessible
+    }
+
+    fn as_CFType(&self) -> CFType {
+        self.as_CFString().as_CFType()
+    }
+}
+
 /// Application-specific key labels, i.e. key fingerprints.
 ///
 /// Not to be confused with `SecAttrApplicationTag` or `SecAttrLabel`, the
@@ -98,11 +214,6 @@ impl SecAttrApplicationLabel {
     pub fn as_bytes(&self) -> &[u8] {
         &self.0
     }
-
-    /// Borrow this value as a `CFType`
-    pub fn as_CFType(&self) -> CFType {
-        self.0.as_CFType()
-    }
 }
 
 impl AsRef<[u8]> for SecAttrApplicationLabel {
@@ -121,6 +232,16 @@ impl Debug for SecAttrApplicationLabel {
 impl<'a> From<&'a [u8]> for SecAttrApplicationLabel {
     fn from(bytes: &[u8]) -> Self {
         Self::new(bytes)
+    }
+}
+
+impl TSecAttr for SecAttrApplicationLabel {
+    fn kind(&self) -> SecAttr {
+        SecAttr::ApplicationLabel
+    }
+
+    fn as_CFType(&self) -> CFType {
+        self.0.as_CFType()
     }
 }
 
@@ -151,11 +272,6 @@ impl SecAttrApplicationTag {
     pub fn as_str(&self) -> Result<&str, Utf8Error> {
         str::from_utf8(self.as_bytes())
     }
-
-    /// Borrow this value as a `CFType`
-    pub fn as_CFType(&self) -> CFType {
-        self.0.as_CFType()
-    }
 }
 
 impl AsRef<[u8]> for SecAttrApplicationTag {
@@ -182,6 +298,16 @@ impl<'a> From<&'a str> for SecAttrApplicationTag {
     }
 }
 
+impl TSecAttr for SecAttrApplicationTag {
+    fn kind(&self) -> SecAttr {
+        SecAttr::ApplicationTag
+    }
+
+    fn as_CFType(&self) -> CFType {
+        self.0.as_CFType()
+    }
+}
+
 /// Human readable/meaningful labels for keychain items.
 ///
 /// Wrapper for the `kSecAttrLabel` attribute key. See:
@@ -194,11 +320,6 @@ impl SecAttrLabel {
     pub fn new(label: &str) -> Self {
         SecAttrLabel(CFString::new(label))
     }
-
-    /// Borrow this value as a `CFType`
-    pub fn as_CFType(&self) -> CFType {
-        self.0.as_CFType()
-    }
 }
 
 impl Display for SecAttrLabel {
@@ -210,6 +331,16 @@ impl Display for SecAttrLabel {
 impl<'a> From<&'a str> for SecAttrLabel {
     fn from(label: &str) -> Self {
         Self::new(label)
+    }
+}
+
+impl TSecAttr for SecAttrLabel {
+    fn kind(&self) -> SecAttr {
+        SecAttr::Label
+    }
+
+    fn as_CFType(&self) -> CFType {
+        self.0.as_CFType()
     }
 }
 
@@ -254,6 +385,16 @@ impl SecAttrKeyClass {
     }
 }
 
+impl TSecAttr for SecAttrKeyClass {
+    fn kind(&self) -> SecAttr {
+        SecAttr::KeyClass
+    }
+
+    fn as_CFType(&self) -> CFType {
+        self.as_CFString().as_CFType()
+    }
+}
+
 /// Types of keys supported by Keychain Services (not to be confused with
 /// `SecAttrKeyClass`)
 ///
@@ -295,6 +436,169 @@ impl SecAttrKeyType {
     }
 }
 
+impl TSecAttr for SecAttrKeyType {
+    fn kind(&self) -> SecAttr {
+        SecAttr::KeyType
+    }
+
+    fn as_CFType(&self) -> CFType {
+        self.as_CFString().as_CFType()
+    }
+}
+
+/// Internet protocols optionally associated with `SecClass::InternetPassword`
+/// keychain items.
+///
+/// Wrapper for the `kSecAttrProtocol` attribute key. See:
+/// <https://developer.apple.com/documentation/security/ksecattrprotocol>
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum SecAttrProtocol {
+    /// File Transfer Protocol
+    FTP,
+
+    /// Client-side FTP account.
+    FTPAccount,
+
+    /// Hypertext Transfer Protocol.
+    HTTP,
+
+    /// Internet Relay Chat.
+    IRC,
+
+    /// Network News Transfer Protocol.
+    NNTP,
+
+    /// Post Office Protocol v3.
+    POP3,
+
+    /// Simple Mail Transfer Protocol.
+    SMTP,
+
+    /// SOCKS protocol.
+    SOCKS,
+
+    /// Internet Message Access Protocol.
+    IMAP,
+
+    /// Lightweight Directory Access Protocol.
+    LDAP,
+
+    /// AFP over AppleTalk.
+    AppleTalk,
+
+    /// AFP over TCP.
+    AFP,
+
+    /// Telnet protocol.
+    Telnet,
+
+    /// Secure Shell Protocol.
+    SSH,
+
+    /// FTP over TLS/SSL.
+    FTPS,
+
+    /// HTTP over TLS/SSL.
+    HTTPS,
+
+    /// HTTP proxy.
+    HTTPProxy,
+
+    /// HTTPS proxy.
+    HTTPSProxy,
+
+    /// FTP proxy.
+    FTPProxy,
+
+    /// Server Message Block protocol.
+    SMB,
+
+    /// Real Time Streaming Protocol
+    RTSP,
+
+    /// RTSP proxy.
+    RTSPProxy,
+
+    /// DAAP protocol.
+    DAAP,
+
+    /// Remote Apple Events.
+    EPPC,
+
+    /// IPP protocol.
+    IPP,
+
+    /// NNTP over TLS/SSL.
+    NNTPS,
+
+    /// LDAP over TLS/SSL.
+    LDAPS,
+
+    /// Telnet over TLS/SSL.
+    TelnetS,
+
+    /// IMAP over TLS/SSL.
+    IMAPS,
+
+    /// IRC over TLS/SSL.
+    IRCS,
+
+    /// POP3 over TLS/SSL.
+    POP3S,
+}
+
+impl SecAttrProtocol {
+    /// Get `CFString` containing the `kSecAttrProtocol` dictionary value for
+    /// this particular `SecAttrProtocol`.
+    pub fn as_CFString(self) -> CFString {
+        unsafe {
+            CFString::wrap_under_get_rule(match self {
+                SecAttrProtocol::FTP => kSecAttrProtocolFTP,
+                SecAttrProtocol::FTPAccount => kSecAttrProtocolFTPAccount,
+                SecAttrProtocol::HTTP => kSecAttrProtocolHTTP,
+                SecAttrProtocol::IRC => kSecAttrProtocolIRC,
+                SecAttrProtocol::NNTP => kSecAttrProtocolNNTP,
+                SecAttrProtocol::POP3 => kSecAttrProtocolPOP3,
+                SecAttrProtocol::SMTP => kSecAttrProtocolSMTP,
+                SecAttrProtocol::SOCKS => kSecAttrProtocolSOCKS,
+                SecAttrProtocol::IMAP => kSecAttrProtocolIMAP,
+                SecAttrProtocol::LDAP => kSecAttrProtocolLDAP,
+                SecAttrProtocol::AppleTalk => kSecAttrProtocolAppleTalk,
+                SecAttrProtocol::AFP => kSecAttrProtocolAFP,
+                SecAttrProtocol::Telnet => kSecAttrProtocolTelnet,
+                SecAttrProtocol::SSH => kSecAttrProtocolSSH,
+                SecAttrProtocol::FTPS => kSecAttrProtocolFTPS,
+                SecAttrProtocol::HTTPS => kSecAttrProtocolHTTPS,
+                SecAttrProtocol::HTTPProxy => kSecAttrProtocolHTTPProxy,
+                SecAttrProtocol::HTTPSProxy => kSecAttrProtocolHTTPSProxy,
+                SecAttrProtocol::FTPProxy => kSecAttrProtocolFTPProxy,
+                SecAttrProtocol::SMB => kSecAttrProtocolSMB,
+                SecAttrProtocol::RTSP => kSecAttrProtocolRTSP,
+                SecAttrProtocol::RTSPProxy => kSecAttrProtocolRTSPProxy,
+                SecAttrProtocol::DAAP => kSecAttrProtocolDAAP,
+                SecAttrProtocol::EPPC => kSecAttrProtocolEPPC,
+                SecAttrProtocol::IPP => kSecAttrProtocolIPP,
+                SecAttrProtocol::NNTPS => kSecAttrProtocolNNTPS,
+                SecAttrProtocol::LDAPS => kSecAttrProtocolLDAPS,
+                SecAttrProtocol::TelnetS => kSecAttrProtocolTelnetS,
+                SecAttrProtocol::IMAPS => kSecAttrProtocolIMAPS,
+                SecAttrProtocol::IRCS => kSecAttrProtocolIRCS,
+                SecAttrProtocol::POP3S => kSecAttrProtocolPOP3S,
+            })
+        }
+    }
+}
+
+impl TSecAttr for SecAttrProtocol {
+    fn kind(&self) -> SecAttr {
+        SecAttr::Protocol
+    }
+
+    fn as_CFType(&self) -> CFType {
+        self.as_CFString().as_CFType()
+    }
+}
+
 /// Identifiers for external storage tokens for cryptographic keys
 /// (i.e. Secure Enclave).
 ///
@@ -318,5 +622,15 @@ impl SecAttrTokenId {
                 SecAttrTokenId::SecureEnclave => kSecAttrTokenIDSecureEnclave,
             })
         }
+    }
+}
+
+impl TSecAttr for SecAttrTokenId {
+    fn kind(&self) -> SecAttr {
+        SecAttr::TokenId
+    }
+
+    fn as_CFType(&self) -> CFType {
+        self.as_CFString().as_CFType()
     }
 }

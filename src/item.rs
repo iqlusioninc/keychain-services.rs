@@ -2,6 +2,20 @@ use core_foundation::{base::TCFType, string::CFString};
 
 use ffi::*;
 
+declare_TCFType!{
+    /// Items stored in the keychain.
+    ///
+    /// Wrapper for the `SecKeychainItem`/`SecKeychainItemRef` types:
+    /// <https://developer.apple.com/documentation/security/seckeychainitemref>
+    SecKeychainItem, SecKeychainItemRef
+}
+
+impl_TCFType!(
+    SecKeychainItem,
+    SecKeychainItemRef,
+    SecKeychainItemGetTypeID
+);
+
 /// Classes of keys supported by Keychain Services (not to be confused with
 /// `SecAttrClass` or `SecType`)
 ///
