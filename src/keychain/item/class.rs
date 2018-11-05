@@ -8,7 +8,7 @@ use ffi::*;
 /// Wrapper for the `kSecClass` attribute key. See:
 /// <https://developer.apple.com/documentation/security/ksecclass>
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum ItemClass {
+pub enum Class {
     /// Generic password items.
     ///
     /// Wrapper for the `kSecClassGenericPassword` attribute value. See:
@@ -40,18 +40,45 @@ pub enum ItemClass {
     Identity,
 }
 
-impl ItemClass {
+impl Class {
+    /// Attempt to look up an attribute kind by its `FourCharacterCode`.
+    // TODO: cache `FourCharacterCodes`? e.g. as `lazy_static`
+    pub(crate) fn from_tag(tag: FourCharacterCode) -> Option<Self> {
+        let result = unsafe {
+            if tag == FourCharacterCode::from(kSecClassGenericPassword) {
+                Class::GenericPassword
+            } else if tag == FourCharacterCode::from(kSecClassInternetPassword) {
+                Class::InternetPassword
+            } else if tag == FourCharacterCode::from(kSecClassCertificate) {
+                Class::Certificate
+            } else if tag == FourCharacterCode::from(kSecClassKey) {
+                Class::Key
+            } else if tag == FourCharacterCode::from(kSecClassIdentity) {
+                Class::Identity
+            } else {
+                return None;
+            }
+        };
+
+        Some(result)
+    }
     /// Get `CFString` containing the `kSecClass` dictionary value for
     /// this particular `SecClass`.
     pub fn as_CFString(self) -> CFString {
         unsafe {
             CFString::wrap_under_get_rule(match self {
-                ItemClass::GenericPassword => kSecClassGenericPassword,
-                ItemClass::InternetPassword => kSecClassInternetPassword,
-                ItemClass::Certificate => kSecClassCertificate,
-                ItemClass::Key => kSecClassKey,
-                ItemClass::Identity => kSecClassIdentity,
+                Class::GenericPassword => kSecClassGenericPassword,
+                Class::InternetPassword => kSecClassInternetPassword,
+                Class::Certificate => kSecClassCertificate,
+                Class::Key => kSecClassKey,
+                Class::Identity => kSecClassIdentity,
             })
         }
+    }
+}
+
+impl From<FourCharacterCode> for Class {
+    fn from(tag: FourCharacterCode) -> Self {
+        Self::from_tag(tag).unwrap_or_else(|| panic!("invalid SecItemClass tag: {:?}", tag))
     }
 }

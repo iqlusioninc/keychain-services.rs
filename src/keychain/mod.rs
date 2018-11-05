@@ -1,14 +1,17 @@
 //! Keychains
 
-use core_foundation::base::TCFType;
+use core_foundation::base::{CFTypeRef, TCFType};
 use std::{ffi::CString, os::raw::c_char, os::unix::ffi::OsStrExt, path::Path, ptr};
 
+use dictionary::*;
 use error::Error;
 use ffi::*;
 
-mod item;
+pub mod item;
+pub mod key;
 
-pub use self::item::{class::*, query::*, KeychainItem};
+use self::item::MatchLimit;
+pub use self::{item::Item, key::Key};
 
 declare_TCFType!{
     /// Keychains which store cryptographic keys, passwords, and other secrets.
@@ -90,6 +93,55 @@ impl Keychain {
             Err(e)
         } else {
             Ok(())
+        }
+    }
+
+    /// Find an item in this keychain.
+    ///
+    /// This is a private method we wrap using builders for querying various
+    /// keychain item types.
+    ///
+    /// Wrapper for `SecItemCopyMatching`. See:
+    /// <https://developer.apple.com/documentation/security/1398306-secitemcopymatching>
+    fn find_item(&self, mut attrs: DictionaryBuilder) -> Result<Item, Error> {
+        attrs.add(unsafe { kSecMatchLimit }, &MatchLimit::One.as_CFType());
+        attrs.add_boolean(unsafe { kSecReturnRef }, true);
+
+        let mut result: ItemRef = ptr::null_mut();
+        let status = unsafe {
+            SecItemCopyMatching(
+                Dictionary::from(attrs).as_concrete_TypeRef(),
+                &mut result as &mut CFTypeRef,
+            )
+        };
+
+        // Return an error if the status was unsuccessful
+        if let Some(e) = Error::maybe_from_OSStatus(status) {
+            return Err(e);
+        }
+
+        Ok(unsafe { Item::wrap_under_create_rule(result) })
+    }
+
+    /// Add an item to this keychain.
+    ///
+    /// This is a private method we wrap using builders for various keychain
+    /// item types.
+    ///
+    /// Wrapper for the `SecItemAdd` function. See:
+    /// <https://developer.apple.com/documentation/security/1401659-secitemadd>
+    fn add_item(&self, mut attrs: DictionaryBuilder) -> Result<Item, Error> {
+        attrs.add(unsafe { kSecUseKeychain }, self);
+        attrs.add_boolean(unsafe { kSecReturnRef }, true);
+
+        let mut result: ItemRef = ptr::null_mut();
+        let status =
+            unsafe { SecItemAdd(Dictionary::from(attrs).as_concrete_TypeRef(), &mut result) };
+
+        if let Some(e) = Error::maybe_from_OSStatus(status) {
+            Err(e)
+        } else {
+            Ok(unsafe { Item::wrap_under_create_rule(result) })
         }
     }
 }

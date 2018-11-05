@@ -20,6 +20,9 @@ script:
 # test
 - cargo test
 
+# build (but do not run) interactive tests
+- cargo test --features=interactive-tests --no-run
+
 # audit
 - cargo audit
 

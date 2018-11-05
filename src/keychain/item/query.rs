@@ -57,9 +57,9 @@ impl MatchLimit {
 /// For more information, see "Search Attribute Keys and Values":
 /// <https://developer.apple.com/documentation/security/keychain_services/keychain_items/search_attribute_keys_and_values>
 #[derive(Default, Debug)]
-pub struct ItemQuery(DictionaryBuilder);
+pub struct Query(DictionaryBuilder);
 
-impl ItemQuery {
+impl Query {
     /// Create a new keychain item query builder
     pub fn new() -> Self {
         Self::default()
@@ -123,7 +123,7 @@ impl ItemQuery {
     /// Wrapper for the `kSecAttrIsPermanent` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrispermanent>
     pub fn permanent(mut self, value: bool) -> Self {
-        self.0.add_boolean(Attr::IsPermanent, value);
+        self.0.add_boolean(AttrKind::IsPermanent, value);
         self
     }
 
@@ -132,7 +132,7 @@ impl ItemQuery {
     /// Wrapper for the `kSecAttrSynchronizable` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrsynchronizable>
     pub fn synchronizable(mut self, value: bool) -> Self {
-        self.0.add_boolean(Attr::Synchronizable, value);
+        self.0.add_boolean(AttrKind::Synchronizable, value);
         self
     }
 
@@ -157,8 +157,8 @@ impl ItemQuery {
     }
 }
 
-impl From<ItemQuery> for DictionaryBuilder {
-    fn from(params: ItemQuery) -> DictionaryBuilder {
+impl From<Query> for DictionaryBuilder {
+    fn from(params: Query) -> DictionaryBuilder {
         params.0
     }
 }

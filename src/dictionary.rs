@@ -9,11 +9,15 @@ use core_foundation::{
 };
 
 use attr::TAttr;
+use ffi::kSecClass;
+use keychain::item;
 
 /// All CFDictionary types we use follow this signature
 pub(crate) type Dictionary = core_foundation::dictionary::CFDictionary<CFType, CFType>;
 
 /// Builder for attribute/parameter dictionaries we pass as arguments.
+// TODO: ensure there are no duplicate items, e.g. with `HashMap`/`BTreeMap`
+// storage and checking if the same key is added twice.
 #[derive(Clone, Default, Debug)]
 pub(crate) struct DictionaryBuilder(Vec<(CFType, CFType)>);
 
@@ -46,6 +50,11 @@ impl DictionaryBuilder {
         K: Into<CFStringRef>,
     {
         self.add(key, &CFBoolean::from(value))
+    }
+
+    /// Add a `keychain::item::Class` value to the dictionary
+    pub(crate) fn add_class(&mut self, class: item::Class) {
+        self.add(unsafe { kSecClass }, &class.as_CFString());
     }
 
     /// Add a key/value pair with an `i64` value to the dictionary

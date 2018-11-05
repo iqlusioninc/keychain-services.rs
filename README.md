@@ -3,6 +3,7 @@
 [![Crate][crate-image]][crate-link]
 [![Build Status][build-image]][build-link]
 [![Apache 2.0 Licensed][license-image]][license-link]
+![Maintenance Status: Experimental][maintenance-image]
 
 Rust binding for macOS Keychain Services, including TouchID-guarded access to
 cryptographic keys stored in the Secure Enclave Processor (SEP).
@@ -17,6 +18,9 @@ which does not rely on e.g. Core Foundation types.
 
 ## Status
 
+This crate is **experimental** and may have bugs/memory safety issues.
+*USE AT YOUR OWN RISK!*
+
 Below is a rough outline of the Keychain Service API and what is supported
 by this crate:
 
@@ -28,9 +32,9 @@ by this crate:
   - [ ] Keychain version (`SecKeychainGetVersion`)
   - [ ] Set default keychain (`SecKeychainSetDefault`)
 - [ ] Keychain Items (`SecKeychainItem`)
-  - [ ] Creating keychain items
-  - [ ] Fetching keychain items
-  - [ ] Getting keychain item attributes
+  - [x] Creating keychain items
+  - [x] Fetching keychain items
+  - [x] Getting keychain item attributes
   - [ ] Deleting keychain items
 - [ ] Certificates / Identities (`SecCertificate`)
   - [ ] Creating certificates
@@ -46,9 +50,9 @@ by this crate:
   - [x] Querying cryptographic key attributes
   - [x] Digital signatures (ECDSA/RSA)
   - [ ] Encryption
-- [ ] Passwords
-  - [ ] Creating passwords
-  - [ ] Querying passwords
+- [x] Passwords
+  - [x] Creating passwords
+  - [x] Querying passwords
   - [ ] Deleting passwords
 
 ## Tests
@@ -94,5 +98,6 @@ additional terms or conditions.
 [build-link]: https://travis-ci.org/iqlusioninc/keychain-services-rs
 [license-image]: https://img.shields.io/badge/license-Apache2.0/MIT-blue.svg
 [license-link]: https://github.com/iqlusioninc/keychain-services-rs/blob/master/LICENSE-APACHE
+[maintenance-image]: https://img.shields.io/badge/maintenance-experimental-blue.svg
 [Documentation]: https://keychain-services.rs/docs/
 [codesign]: https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html#//apple_ref/doc/uid/TP40005929-CH4-SW4

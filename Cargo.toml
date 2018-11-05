@@ -24,9 +24,11 @@ travis-ci = { repository = "iqlusioninc/keychain-services-rs" }
 core-foundation = "0.6"
 failure = "0.1"
 failure_derive = "0.1"
+zeroize = "0.4"
 
 [dev-dependencies]
 ring = "0.13"
+tempfile = "3"
 untrusted = "0.6"
 
 [features]

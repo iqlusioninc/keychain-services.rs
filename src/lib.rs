@@ -61,13 +61,13 @@ extern crate core_foundation;
 extern crate failure;
 #[macro_use]
 extern crate failure_derive;
+extern crate zeroize;
 
 mod access;
 mod attr;
 mod dictionary;
 mod error;
 mod ffi;
-pub mod key;
 pub mod keychain;
 mod signature;
 

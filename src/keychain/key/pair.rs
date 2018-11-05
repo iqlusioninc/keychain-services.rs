@@ -78,7 +78,7 @@ impl KeyPairGenerateParams {
     /// Wrapper for the `kSecAttrAccessControl` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattraccesscontrol>
     pub fn access_control(mut self, access_control: &AccessControl) -> Self {
-        self.attrs.add(Attr::AccessControl, access_control);
+        self.attrs.add(AttrKind::AccessControl, access_control);
         self
     }
 
@@ -100,7 +100,7 @@ impl KeyPairGenerateParams {
     /// Wrapper for the `kSecAttrIsPermanent` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrispermanent>
     pub fn permanent(mut self, value: bool) -> Self {
-        self.attrs.add_boolean(Attr::IsPermanent, value);
+        self.attrs.add_boolean(AttrKind::IsPermanent, value);
         self
     }
 
@@ -120,7 +120,7 @@ impl KeyPairGenerateParams {
     /// Wrapper for the `kSecAttrSynchronizable` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrsynchronizable>
     pub fn synchronizable(mut self, value: bool) -> Self {
-        self.attrs.add_boolean(Attr::Synchronizable, value);
+        self.attrs.add_boolean(AttrKind::Synchronizable, value);
         self
     }
 
@@ -138,7 +138,7 @@ impl From<KeyPairGenerateParams> for Dictionary {
     fn from(params: KeyPairGenerateParams) -> Dictionary {
         let mut result = DictionaryBuilder::new();
         result.add_attr(&params.key_type);
-        result.add_number(Attr::KeySizeInBits, params.key_size as i64);
+        result.add_number(AttrKind::KeySizeInBits, params.key_size as i64);
         result.add(
             unsafe { kSecPrivateKeyAttrs },
             &Dictionary::from(params.attrs),

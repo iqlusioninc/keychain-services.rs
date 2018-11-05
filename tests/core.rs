@@ -5,6 +5,7 @@
 
 extern crate keychain_services;
 extern crate ring;
+extern crate tempfile;
 extern crate untrusted;
 
 use keychain_services::*;

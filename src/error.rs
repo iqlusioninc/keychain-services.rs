@@ -8,7 +8,7 @@ use core_foundation::{
 use failure::{Backtrace, Fail};
 use std::{
     fmt::{self, Display},
-    ptr,
+    io, ptr,
 };
 
 use ffi::*;
@@ -52,6 +52,12 @@ const errSecDuplicateItem: OSStatus = -25299;
 /// Keychain with the same name already exists.
 /// <https://developer.apple.com/documentation/security/errsecduplicatekeychain>
 const errSecDuplicateKeychain: OSStatus = -25296;
+
+/// Base number for `OSStatus` values which map directly to errno values
+const errSecErrnoBase: OSStatus = 100_000;
+
+/// Upper limit number for `OSStatus` values which map directly to errno values
+const errSecErrnoLimit: OSStatus = 100_255;
 
 /// System is in a dark wake state - user interface cannot be displayed.
 /// <https://developer.apple.com/documentation/security/errsecindarkwake>
@@ -153,22 +159,29 @@ pub struct Error {
 }
 
 impl Error {
+    /// Create a new error of the given kind with the given description
+    pub fn new<D>(kind: ErrorKind, description: &D) -> Self
+    where
+        D: ToString + ?Sized,
+    {
+        Error {
+            kind,
+            backtrace: Backtrace::new(),
+            description: description.to_string(),
+        }
+    }
+
     /// Create an error from an `OSStatus` if the status is not success
     pub fn maybe_from_OSStatus(status: OSStatus) -> Option<Self> {
         if status == errSecSuccess {
             None
         } else {
             let kind = ErrorKind::from(status);
-            let backtrace = Backtrace::new();
             let description = unsafe {
                 CFString::wrap_under_create_rule(SecCopyErrorMessageString(status, ptr::null()))
-            }.to_string();
+            };
 
-            Some(Error {
-                kind,
-                backtrace,
-                description,
-            })
+            Some(Error::new(kind, &description))
         }
     }
 
@@ -440,6 +453,15 @@ pub enum ErrorKind {
     #[fail(display = "wrong version")]
     WrongSecVersion,
 
+    /// Input/output errors.
+    ///
+    /// Wrapper for errno codes we know/commonly encounter.
+    #[fail(display = "I/O error ({:?})", kind)]
+    Io {
+        /// `std::io::ErrorKind` value representing the I/O error
+        kind: io::ErrorKind,
+    },
+
     /// Errors returned from CoreFoundation.
     ///
     /// Codes correspond to the return value of the `CFErrorGetCode` function.
@@ -463,6 +485,14 @@ pub enum ErrorKind {
         /// See `CFErrorGetDomain()` for more information:
         /// <https://developer.apple.com/documentation/corefoundation/1494657-cferrorgetdomain>
         domain: String,
+    },
+
+    /// Unix errno values we receive from the underlying OS
+    // TODO: create `ErrorKind` variants for ones we commonly encounter?
+    #[fail(display = "POSIX error (errno: {})", code)]
+    Errno {
+        /// Raw errno value
+        code: u8,
     },
 
     /// `OSStatus` codes which we can't otherwise decode.
@@ -517,6 +547,18 @@ impl From<OSStatus> for ErrorKind {
             errSecReadOnly => ErrorKind::ReadOnly,
             errSecReadOnlyAttr => ErrorKind::ReadOnlyAttr,
             errSecWrongSecVersion => ErrorKind::WrongSecVersion,
+            errSecErrnoBase...errSecErrnoLimit => match (status - errSecErrnoBase) as u8 {
+                1 => ErrorKind::Io {
+                    kind: io::ErrorKind::PermissionDenied,
+                },
+                2 => ErrorKind::Io {
+                    kind: io::ErrorKind::NotFound,
+                },
+                17 => ErrorKind::Io {
+                    kind: io::ErrorKind::AlreadyExists,
+                },
+                code => ErrorKind::Errno { code },
+            },
             _ => ErrorKind::OSError {
                 code: i64::from(status),
             },
