@@ -8,19 +8,19 @@ use core_foundation::{
     string::{CFString, CFStringRef},
 };
 
-use attr::TSecAttr;
+use attr::TAttr;
 
 /// All CFDictionary types we use follow this signature
-pub type CFDictionary = core_foundation::dictionary::CFDictionary<CFType, CFType>;
+pub(crate) type Dictionary = core_foundation::dictionary::CFDictionary<CFType, CFType>;
 
 /// Builder for attribute/parameter dictionaries we pass as arguments.
 #[derive(Clone, Default, Debug)]
-pub(crate) struct CFDictionaryBuilder(Vec<(CFType, CFType)>);
+pub(crate) struct DictionaryBuilder(Vec<(CFType, CFType)>);
 
-impl CFDictionaryBuilder {
+impl DictionaryBuilder {
     /// Create a new dictionary builder
-    pub(crate) fn new() -> CFDictionaryBuilder {
-        CFDictionaryBuilder(vec![])
+    pub(crate) fn new() -> DictionaryBuilder {
+        DictionaryBuilder(vec![])
     }
 
     /// Add a key/value pair to the dictionary
@@ -36,7 +36,7 @@ impl CFDictionaryBuilder {
     }
 
     /// Add an attribute (i.e. `TSecAttr`) to the dictionary
-    pub(crate) fn add_attr(&mut self, attr: &TSecAttr) {
+    pub(crate) fn add_attr(&mut self, attr: &TAttr) {
         self.add(attr.kind(), &attr.as_CFType())
     }
 
@@ -66,8 +66,8 @@ impl CFDictionaryBuilder {
     }
 }
 
-impl From<CFDictionaryBuilder> for CFDictionary {
-    fn from(builder: CFDictionaryBuilder) -> CFDictionary {
-        CFDictionary::from_CFType_pairs(&builder.0)
+impl From<DictionaryBuilder> for Dictionary {
+    fn from(builder: DictionaryBuilder) -> Dictionary {
+        Dictionary::from_CFType_pairs(&builder.0)
     }
 }

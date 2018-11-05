@@ -14,18 +14,17 @@ extern crate keychain_services;
 use keychain_services::*;
 
 /// Generate a `SecKeyPair` for testing purposes
-fn generate_keypair(tag: &str, label: &str) -> SecKeyPair {
-    let acl =
-        SecAccessControl::create_with_flags(SecAttrAccessible::WhenUnlocked, Default::default())
-            .unwrap();
+fn generate_keypair(tag: &str, label: &str) -> KeyPair {
+    let acl = SecAccessControl::create_with_flags(AttrAccessible::WhenUnlocked, Default::default())
+        .unwrap();
 
-    let generate_params = SecKeyGeneratePairParams::new(SecAttrKeyType::EcSecPrimeRandom, 256)
+    let generate_params = GeneratePairParams::new(AttrKeyType::EcSecPrimeRandom, 256)
         .access_control(acl)
         .application_tag(tag)
         .label(label)
         .permanent(true);
 
-    SecKeyPair::generate(generate_params).unwrap()
+    KeyPair::generate(generate_params).unwrap()
 }
 
 /// `SecKey` query
@@ -36,9 +35,9 @@ fn seckey_query() {
         "keychain-services.rs integration test query key",
     );
 
-    let private_key_query = SecItemQueryParams::new()
-        .key_class(SecAttrKeyClass::Private)
-        .key_type(SecAttrKeyType::EcSecPrimeRandom)
+    let private_key_query = ItemQuery::new()
+        .key_class(AttrKeyClass::Private)
+        .key_type(AttrKeyType::EcSecPrimeRandom)
         .application_label(keypair.public_key.application_label().unwrap());
 
     let private_key = SecKey::find(private_key_query).unwrap();

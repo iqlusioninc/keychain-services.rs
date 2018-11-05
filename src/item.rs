@@ -7,14 +7,10 @@ declare_TCFType!{
     ///
     /// Wrapper for the `SecKeychainItem`/`SecKeychainItemRef` types:
     /// <https://developer.apple.com/documentation/security/seckeychainitemref>
-    SecKeychainItem, SecKeychainItemRef
+    KeychainItem, KeychainItemRef
 }
 
-impl_TCFType!(
-    SecKeychainItem,
-    SecKeychainItemRef,
-    SecKeychainItemGetTypeID
-);
+impl_TCFType!(KeychainItem, KeychainItemRef, SecKeychainItemGetTypeID);
 
 /// Classes of keys supported by Keychain Services (not to be confused with
 /// `SecAttrClass` or `SecType`)
@@ -22,7 +18,7 @@ impl_TCFType!(
 /// Wrapper for the `kSecClass` attribute key. See:
 /// <https://developer.apple.com/documentation/security/ksecclass>
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum SecClass {
+pub enum Class {
     /// Generic password items.
     ///
     /// Wrapper for the `kSecClassGenericPassword` attribute value. See:
@@ -54,17 +50,17 @@ pub enum SecClass {
     Identity,
 }
 
-impl SecClass {
+impl Class {
     /// Get `CFString` containing the `kSecClass` dictionary value for
     /// this particular `SecClass`.
     pub fn as_CFString(self) -> CFString {
         unsafe {
             CFString::wrap_under_get_rule(match self {
-                SecClass::GenericPassword => kSecClassGenericPassword,
-                SecClass::InternetPassword => kSecClassInternetPassword,
-                SecClass::Certificate => kSecClassCertificate,
-                SecClass::Key => kSecClassKey,
-                SecClass::Identity => kSecClassIdentity,
+                Class::GenericPassword => kSecClassGenericPassword,
+                Class::InternetPassword => kSecClassInternetPassword,
+                Class::Certificate => kSecClassCertificate,
+                Class::Key => kSecClassKey,
+                Class::Identity => kSecClassIdentity,
             })
         }
     }

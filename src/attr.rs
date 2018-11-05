@@ -13,11 +13,11 @@ use std::{
 
 use ffi::*;
 
-/// Trait implemented by all `SecAttr*` types to simplify adding them to
+/// Trait implemented by all `Attr*` types to simplify adding them to
 /// attribute dictionaries.
-pub(crate) trait TSecAttr {
+pub(crate) trait TAttr {
     /// Get the attribute kind (i.e. `SecAttr` enum variant) for this attribute
-    fn kind(&self) -> SecAttr;
+    fn kind(&self) -> Attr;
 
     /// Get a `CFType` object representing this attribute.
     fn as_CFType(&self) -> CFType;
@@ -26,7 +26,7 @@ pub(crate) trait TSecAttr {
 /// Enum of attribute types passed in parameter dictionaries. This wraps up
 /// access to framework constants which would otherwise be unsafe.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub(crate) enum SecAttr {
+pub(crate) enum Attr {
     /// Wrapper for the `kSecAttrAccessControl` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattraccesscontrol>
     AccessControl,
@@ -88,31 +88,31 @@ pub(crate) enum SecAttr {
     TokenId,
 }
 
-impl From<SecAttr> for CFStringRef {
-    fn from(attr: SecAttr) -> CFStringRef {
+impl From<Attr> for CFStringRef {
+    fn from(attr: Attr) -> CFStringRef {
         unsafe {
             match attr {
-                SecAttr::AccessControl => kSecAttrAccessControl,
-                SecAttr::Accessible => kSecAttrAccessible,
-                SecAttr::Account => kSecAttrAccount,
-                SecAttr::ApplicationLabel => kSecAttrApplicationLabel,
-                SecAttr::ApplicationTag => kSecAttrApplicationTag,
-                SecAttr::KeyClass => kSecAttrKeyClass,
-                SecAttr::KeySizeInBits => kSecAttrKeySizeInBits,
-                SecAttr::KeyType => kSecAttrKeyType,
-                SecAttr::IsPermanent => kSecAttrIsPermanent,
-                SecAttr::Label => kSecAttrLabel,
-                SecAttr::Protocol => kSecAttrProtocol,
-                SecAttr::Server => kSecAttrServer,
-                SecAttr::Service => kSecAttrService,
-                SecAttr::Synchronizable => kSecAttrSynchronizable,
-                SecAttr::TokenId => kSecAttrTokenID,
+                Attr::AccessControl => kSecAttrAccessControl,
+                Attr::Accessible => kSecAttrAccessible,
+                Attr::Account => kSecAttrAccount,
+                Attr::ApplicationLabel => kSecAttrApplicationLabel,
+                Attr::ApplicationTag => kSecAttrApplicationTag,
+                Attr::KeyClass => kSecAttrKeyClass,
+                Attr::KeySizeInBits => kSecAttrKeySizeInBits,
+                Attr::KeyType => kSecAttrKeyType,
+                Attr::IsPermanent => kSecAttrIsPermanent,
+                Attr::Label => kSecAttrLabel,
+                Attr::Protocol => kSecAttrProtocol,
+                Attr::Server => kSecAttrServer,
+                Attr::Service => kSecAttrService,
+                Attr::Synchronizable => kSecAttrSynchronizable,
+                Attr::TokenId => kSecAttrTokenID,
             }
         }
     }
 }
 
-unsafe impl ToVoid<CFType> for SecAttr {
+unsafe impl ToVoid<CFType> for Attr {
     fn to_void(&self) -> *const c_void {
         CFStringRef::from(*self).to_void()
     }
@@ -127,7 +127,7 @@ unsafe impl ToVoid<CFType> for SecAttr {
 /// "Accessibility Values" section of "Item Attribute Keys and Values":
 /// <https://developer.apple.com/documentation/security/keychain_services/keychain_items/item_attribute_keys_and_values>
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum SecAttrAccessible {
+pub enum AttrAccessible {
     /// Device is unlocked and a passcode has been set on the device.
     /// <https://developer.apple.com/documentation/security/ksecattraccessiblewhenpasscodesetthisdeviceonly>
     WhenPasscodeSetThisDeviceOnly,
@@ -158,33 +158,33 @@ pub enum SecAttrAccessible {
     Always,
 }
 
-impl SecAttrAccessible {
+impl AttrAccessible {
     /// Get pointer to an accessibility value to associate with the
     /// `kSecAttrAccessible` key for a keychain item
     pub fn as_CFString(self) -> CFString {
         unsafe {
             CFString::wrap_under_get_rule(match self {
-                SecAttrAccessible::WhenPasscodeSetThisDeviceOnly => {
+                AttrAccessible::WhenPasscodeSetThisDeviceOnly => {
                     kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
                 }
-                SecAttrAccessible::WhenUnlockedThisDeviceOnly => {
+                AttrAccessible::WhenUnlockedThisDeviceOnly => {
                     kSecAttrAccessibleWhenUnlockedThisDeviceOnly
                 }
-                SecAttrAccessible::WhenUnlocked => kSecAttrAccessibleWhenUnlocked,
-                SecAttrAccessible::AfterFirstUnlockThisDeviceOnly => {
+                AttrAccessible::WhenUnlocked => kSecAttrAccessibleWhenUnlocked,
+                AttrAccessible::AfterFirstUnlockThisDeviceOnly => {
                     kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
                 }
-                SecAttrAccessible::AfterFirstUnlock => kSecAttrAccessibleAfterFirstUnlock,
-                SecAttrAccessible::AlwaysThisDeviceOnly => kSecAttrAccessibleAlwaysThisDeviceOnly,
-                SecAttrAccessible::Always => kSecAttrAccessibleAlways,
+                AttrAccessible::AfterFirstUnlock => kSecAttrAccessibleAfterFirstUnlock,
+                AttrAccessible::AlwaysThisDeviceOnly => kSecAttrAccessibleAlwaysThisDeviceOnly,
+                AttrAccessible::Always => kSecAttrAccessibleAlways,
             })
         }
     }
 }
 
-impl TSecAttr for SecAttrAccessible {
-    fn kind(&self) -> SecAttr {
-        SecAttr::Accessible
+impl TAttr for AttrAccessible {
+    fn kind(&self) -> Attr {
+        Attr::Accessible
     }
 
     fn as_CFType(&self) -> CFType {
@@ -202,12 +202,12 @@ impl TSecAttr for SecAttrAccessible {
 /// Wrapper for the `kSecAttrApplicationLabel` attribute key. See:
 /// <https://developer.apple.com/documentation/security/ksecattrapplicationlabel>
 #[derive(Clone, Eq, PartialEq)]
-pub struct SecAttrApplicationLabel(pub(crate) CFData);
+pub struct AttrApplicationLabel(pub(crate) CFData);
 
-impl SecAttrApplicationLabel {
+impl AttrApplicationLabel {
     /// Create a new application label from a byte slice
     pub fn new(bytes: &[u8]) -> Self {
-        SecAttrApplicationLabel(CFData::from_buffer(bytes))
+        AttrApplicationLabel(CFData::from_buffer(bytes))
     }
 
     /// Borrow this value as a byte slice
@@ -216,28 +216,28 @@ impl SecAttrApplicationLabel {
     }
 }
 
-impl AsRef<[u8]> for SecAttrApplicationLabel {
+impl AsRef<[u8]> for AttrApplicationLabel {
     fn as_ref(&self) -> &[u8] {
         self.as_bytes()
     }
 }
 
-impl Debug for SecAttrApplicationLabel {
+impl Debug for AttrApplicationLabel {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let bytes = Vec::from(self.as_bytes());
         write!(f, "SecAttrApplicationLabel({:?})", bytes)
     }
 }
 
-impl<'a> From<&'a [u8]> for SecAttrApplicationLabel {
+impl<'a> From<&'a [u8]> for AttrApplicationLabel {
     fn from(bytes: &[u8]) -> Self {
         Self::new(bytes)
     }
 }
 
-impl TSecAttr for SecAttrApplicationLabel {
-    fn kind(&self) -> SecAttr {
-        SecAttr::ApplicationLabel
+impl TAttr for AttrApplicationLabel {
+    fn kind(&self) -> Attr {
+        Attr::ApplicationLabel
     }
 
     fn as_CFType(&self) -> CFType {
@@ -255,12 +255,12 @@ impl TSecAttr for SecAttrApplicationLabel {
 /// Wrapper for the `kSecAttrApplicationTag` attribute key. See:
 /// <https://developer.apple.com/documentation/security/ksecattrapplicationtag>
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct SecAttrApplicationTag(pub(crate) CFData);
+pub struct AttrApplicationTag(pub(crate) CFData);
 
-impl SecAttrApplicationTag {
+impl AttrApplicationTag {
     /// Create a new application tag from a byte slice
     pub fn new(bytes: &[u8]) -> Self {
-        SecAttrApplicationTag(CFData::from_buffer(bytes))
+        AttrApplicationTag(CFData::from_buffer(bytes))
     }
 
     /// Borrow the tag data as a byte slice
@@ -274,33 +274,33 @@ impl SecAttrApplicationTag {
     }
 }
 
-impl AsRef<[u8]> for SecAttrApplicationTag {
+impl AsRef<[u8]> for AttrApplicationTag {
     fn as_ref(&self) -> &[u8] {
         self.as_bytes()
     }
 }
 
-impl Display for SecAttrApplicationTag {
+impl Display for AttrApplicationTag {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", String::from_utf8_lossy(&self.0))
     }
 }
 
-impl<'a> From<&'a [u8]> for SecAttrApplicationTag {
+impl<'a> From<&'a [u8]> for AttrApplicationTag {
     fn from(bytes: &[u8]) -> Self {
         Self::new(bytes)
     }
 }
 
-impl<'a> From<&'a str> for SecAttrApplicationTag {
+impl<'a> From<&'a str> for AttrApplicationTag {
     fn from(string: &str) -> Self {
         Self::new(string.as_bytes())
     }
 }
 
-impl TSecAttr for SecAttrApplicationTag {
-    fn kind(&self) -> SecAttr {
-        SecAttr::ApplicationTag
+impl TAttr for AttrApplicationTag {
+    fn kind(&self) -> Attr {
+        Attr::ApplicationTag
     }
 
     fn as_CFType(&self) -> CFType {
@@ -313,30 +313,30 @@ impl TSecAttr for SecAttrApplicationTag {
 /// Wrapper for the `kSecAttrLabel` attribute key. See:
 /// <https://developer.apple.com/documentation/security/ksecattrlabel>
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct SecAttrLabel(pub(crate) CFString);
+pub struct AttrLabel(pub(crate) CFString);
 
-impl SecAttrLabel {
+impl AttrLabel {
     /// Create a new label from a `&str`
     pub fn new(label: &str) -> Self {
-        SecAttrLabel(CFString::new(label))
+        AttrLabel(CFString::new(label))
     }
 }
 
-impl Display for SecAttrLabel {
+impl Display for AttrLabel {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", &self.0)
     }
 }
 
-impl<'a> From<&'a str> for SecAttrLabel {
+impl<'a> From<&'a str> for AttrLabel {
     fn from(label: &str) -> Self {
         Self::new(label)
     }
 }
 
-impl TSecAttr for SecAttrLabel {
-    fn kind(&self) -> SecAttr {
-        SecAttr::Label
+impl TAttr for AttrLabel {
+    fn kind(&self) -> Attr {
+        Attr::Label
     }
 
     fn as_CFType(&self) -> CFType {
@@ -350,7 +350,7 @@ impl TSecAttr for SecAttrLabel {
 /// Wrapper for the `kSecAttrKeyClass` attribute key. See:
 /// <https://developer.apple.com/documentation/security/ksecattrkeyclass>
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum SecAttrKeyClass {
+pub enum AttrKeyClass {
     /// Public keys.
     ///
     /// Wrapper for the `kSecAttrKeyClassPublic` attribute value. See:
@@ -371,23 +371,23 @@ pub enum SecAttrKeyClass {
     Symmetric,
 }
 
-impl SecAttrKeyClass {
+impl AttrKeyClass {
     /// Get `CFString` containing the `kSecAttrKeyClass` dictionary value for
     /// this particular `SecAttrKeyClass`.
     pub fn as_CFString(self) -> CFString {
         unsafe {
             CFString::wrap_under_get_rule(match self {
-                SecAttrKeyClass::Public => kSecAttrKeyClassPublic,
-                SecAttrKeyClass::Private => kSecAttrKeyClassPrivate,
-                SecAttrKeyClass::Symmetric => kSecAttrKeyClassSymmetric,
+                AttrKeyClass::Public => kSecAttrKeyClassPublic,
+                AttrKeyClass::Private => kSecAttrKeyClassPrivate,
+                AttrKeyClass::Symmetric => kSecAttrKeyClassSymmetric,
             })
         }
     }
 }
 
-impl TSecAttr for SecAttrKeyClass {
-    fn kind(&self) -> SecAttr {
-        SecAttr::KeyClass
+impl TAttr for AttrKeyClass {
+    fn kind(&self) -> Attr {
+        Attr::KeyClass
     }
 
     fn as_CFType(&self) -> CFType {
@@ -396,12 +396,12 @@ impl TSecAttr for SecAttrKeyClass {
 }
 
 /// Types of keys supported by Keychain Services (not to be confused with
-/// `SecAttrKeyClass`)
+/// `AttrKeyClass`)
 ///
 /// Wrapper for the `kSecAttrKeyType` attribute key. See:
 /// <https://developer.apple.com/documentation/security/ksecattrkeytype>
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum SecAttrKeyType {
+pub enum AttrKeyType {
     /// AES algorithm.
     ///
     /// Wrapper for the `kSecAttrKeyTypeAES` attribute value. See:
@@ -422,23 +422,23 @@ pub enum SecAttrKeyType {
     EcSecPrimeRandom,
 }
 
-impl SecAttrKeyType {
+impl AttrKeyType {
     /// Get `CFString` containing the `kSecAttrKeyType` dictionary value for
     /// this particular `SecAttrKeyType`.
     pub fn as_CFString(self) -> CFString {
         unsafe {
             CFString::wrap_under_get_rule(match self {
-                SecAttrKeyType::Aes => kSecAttrKeyTypeAES,
-                SecAttrKeyType::Rsa => kSecAttrKeyTypeRSA,
-                SecAttrKeyType::EcSecPrimeRandom => kSecAttrKeyTypeECSECPrimeRandom,
+                AttrKeyType::Aes => kSecAttrKeyTypeAES,
+                AttrKeyType::Rsa => kSecAttrKeyTypeRSA,
+                AttrKeyType::EcSecPrimeRandom => kSecAttrKeyTypeECSECPrimeRandom,
             })
         }
     }
 }
 
-impl TSecAttr for SecAttrKeyType {
-    fn kind(&self) -> SecAttr {
-        SecAttr::KeyType
+impl TAttr for AttrKeyType {
+    fn kind(&self) -> Attr {
+        Attr::KeyType
     }
 
     fn as_CFType(&self) -> CFType {
@@ -452,7 +452,7 @@ impl TSecAttr for SecAttrKeyType {
 /// Wrapper for the `kSecAttrProtocol` attribute key. See:
 /// <https://developer.apple.com/documentation/security/ksecattrprotocol>
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum SecAttrProtocol {
+pub enum AttrProtocol {
     /// File Transfer Protocol
     FTP,
 
@@ -547,51 +547,51 @@ pub enum SecAttrProtocol {
     POP3S,
 }
 
-impl SecAttrProtocol {
+impl AttrProtocol {
     /// Get `CFString` containing the `kSecAttrProtocol` dictionary value for
     /// this particular `SecAttrProtocol`.
     pub fn as_CFString(self) -> CFString {
         unsafe {
             CFString::wrap_under_get_rule(match self {
-                SecAttrProtocol::FTP => kSecAttrProtocolFTP,
-                SecAttrProtocol::FTPAccount => kSecAttrProtocolFTPAccount,
-                SecAttrProtocol::HTTP => kSecAttrProtocolHTTP,
-                SecAttrProtocol::IRC => kSecAttrProtocolIRC,
-                SecAttrProtocol::NNTP => kSecAttrProtocolNNTP,
-                SecAttrProtocol::POP3 => kSecAttrProtocolPOP3,
-                SecAttrProtocol::SMTP => kSecAttrProtocolSMTP,
-                SecAttrProtocol::SOCKS => kSecAttrProtocolSOCKS,
-                SecAttrProtocol::IMAP => kSecAttrProtocolIMAP,
-                SecAttrProtocol::LDAP => kSecAttrProtocolLDAP,
-                SecAttrProtocol::AppleTalk => kSecAttrProtocolAppleTalk,
-                SecAttrProtocol::AFP => kSecAttrProtocolAFP,
-                SecAttrProtocol::Telnet => kSecAttrProtocolTelnet,
-                SecAttrProtocol::SSH => kSecAttrProtocolSSH,
-                SecAttrProtocol::FTPS => kSecAttrProtocolFTPS,
-                SecAttrProtocol::HTTPS => kSecAttrProtocolHTTPS,
-                SecAttrProtocol::HTTPProxy => kSecAttrProtocolHTTPProxy,
-                SecAttrProtocol::HTTPSProxy => kSecAttrProtocolHTTPSProxy,
-                SecAttrProtocol::FTPProxy => kSecAttrProtocolFTPProxy,
-                SecAttrProtocol::SMB => kSecAttrProtocolSMB,
-                SecAttrProtocol::RTSP => kSecAttrProtocolRTSP,
-                SecAttrProtocol::RTSPProxy => kSecAttrProtocolRTSPProxy,
-                SecAttrProtocol::DAAP => kSecAttrProtocolDAAP,
-                SecAttrProtocol::EPPC => kSecAttrProtocolEPPC,
-                SecAttrProtocol::IPP => kSecAttrProtocolIPP,
-                SecAttrProtocol::NNTPS => kSecAttrProtocolNNTPS,
-                SecAttrProtocol::LDAPS => kSecAttrProtocolLDAPS,
-                SecAttrProtocol::TelnetS => kSecAttrProtocolTelnetS,
-                SecAttrProtocol::IMAPS => kSecAttrProtocolIMAPS,
-                SecAttrProtocol::IRCS => kSecAttrProtocolIRCS,
-                SecAttrProtocol::POP3S => kSecAttrProtocolPOP3S,
+                AttrProtocol::FTP => kSecAttrProtocolFTP,
+                AttrProtocol::FTPAccount => kSecAttrProtocolFTPAccount,
+                AttrProtocol::HTTP => kSecAttrProtocolHTTP,
+                AttrProtocol::IRC => kSecAttrProtocolIRC,
+                AttrProtocol::NNTP => kSecAttrProtocolNNTP,
+                AttrProtocol::POP3 => kSecAttrProtocolPOP3,
+                AttrProtocol::SMTP => kSecAttrProtocolSMTP,
+                AttrProtocol::SOCKS => kSecAttrProtocolSOCKS,
+                AttrProtocol::IMAP => kSecAttrProtocolIMAP,
+                AttrProtocol::LDAP => kSecAttrProtocolLDAP,
+                AttrProtocol::AppleTalk => kSecAttrProtocolAppleTalk,
+                AttrProtocol::AFP => kSecAttrProtocolAFP,
+                AttrProtocol::Telnet => kSecAttrProtocolTelnet,
+                AttrProtocol::SSH => kSecAttrProtocolSSH,
+                AttrProtocol::FTPS => kSecAttrProtocolFTPS,
+                AttrProtocol::HTTPS => kSecAttrProtocolHTTPS,
+                AttrProtocol::HTTPProxy => kSecAttrProtocolHTTPProxy,
+                AttrProtocol::HTTPSProxy => kSecAttrProtocolHTTPSProxy,
+                AttrProtocol::FTPProxy => kSecAttrProtocolFTPProxy,
+                AttrProtocol::SMB => kSecAttrProtocolSMB,
+                AttrProtocol::RTSP => kSecAttrProtocolRTSP,
+                AttrProtocol::RTSPProxy => kSecAttrProtocolRTSPProxy,
+                AttrProtocol::DAAP => kSecAttrProtocolDAAP,
+                AttrProtocol::EPPC => kSecAttrProtocolEPPC,
+                AttrProtocol::IPP => kSecAttrProtocolIPP,
+                AttrProtocol::NNTPS => kSecAttrProtocolNNTPS,
+                AttrProtocol::LDAPS => kSecAttrProtocolLDAPS,
+                AttrProtocol::TelnetS => kSecAttrProtocolTelnetS,
+                AttrProtocol::IMAPS => kSecAttrProtocolIMAPS,
+                AttrProtocol::IRCS => kSecAttrProtocolIRCS,
+                AttrProtocol::POP3S => kSecAttrProtocolPOP3S,
             })
         }
     }
 }
 
-impl TSecAttr for SecAttrProtocol {
-    fn kind(&self) -> SecAttr {
-        SecAttr::Protocol
+impl TAttr for AttrProtocol {
+    fn kind(&self) -> Attr {
+        Attr::Protocol
     }
 
     fn as_CFType(&self) -> CFType {
@@ -605,7 +605,7 @@ impl TSecAttr for SecAttrProtocol {
 /// Wrapper for the `kSecAttrTokenID` attribute key. See:
 /// <https://developer.apple.com/documentation/security/ksecattrtokenid>
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum SecAttrTokenId {
+pub enum AttrTokenId {
     /// Secure Enclave Processor (SEP), e.g. T1/T2 chip.
     ///
     /// Wrapper for the `kSecAttrTokenIDSecureEnclave` attribute value. See:
@@ -613,21 +613,21 @@ pub enum SecAttrTokenId {
     SecureEnclave,
 }
 
-impl SecAttrTokenId {
+impl AttrTokenId {
     /// Get `CFString` containing the `kSecAttrTokenID` dictionary value for
     /// this particular `SecAttrTokenId`.
     pub fn as_CFString(self) -> CFString {
         unsafe {
             CFString::wrap_under_get_rule(match self {
-                SecAttrTokenId::SecureEnclave => kSecAttrTokenIDSecureEnclave,
+                AttrTokenId::SecureEnclave => kSecAttrTokenIDSecureEnclave,
             })
         }
     }
 }
 
-impl TSecAttr for SecAttrTokenId {
-    fn kind(&self) -> SecAttr {
-        SecAttr::TokenId
+impl TAttr for AttrTokenId {
+    fn kind(&self) -> Attr {
+        Attr::TokenId
     }
 
     fn as_CFType(&self) -> CFType {

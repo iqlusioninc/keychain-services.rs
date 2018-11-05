@@ -15,22 +15,19 @@ const TEST_MESSAGE: &[u8] = b"Embed confidential information in items that you s
 #[test]
 fn generate_and_sign_with_ecdsa_keys() {
     let acl =
-        SecAccessControl::create_with_flags(SecAttrAccessible::WhenUnlocked, Default::default())
-            .unwrap();
+        AccessControl::create_with_flags(AttrAccessible::WhenUnlocked, Default::default()).unwrap();
 
     let generate_params =
-        SecKeyGeneratePairParams::new(SecAttrKeyType::EcSecPrimeRandom, 256).access_control(&acl);
+        GeneratePairParams::new(AttrKeyType::EcSecPrimeRandom, 256).access_control(&acl);
 
-    let keypair = SecKeyPair::generate(generate_params).unwrap();
+    let keypair = KeyPair::generate(generate_params).unwrap();
 
     let public_key_bytes = keypair.public_key.to_external_representation().unwrap();
 
     let signature = keypair
         .private_key
-        .sign(
-            SecKeyAlgorithm::ECDSASignatureMessageX962SHA256,
-            TEST_MESSAGE,
-        ).unwrap();
+        .sign(KeyAlgorithm::ECDSASignatureMessageX962SHA256, TEST_MESSAGE)
+        .unwrap();
 
     ring::signature::verify(
         &ring::signature::ECDSA_P256_SHA256_ASN1,

@@ -4,10 +4,10 @@ use ffi::*;
 
 /// Cryptographic algorithms for use with keys stored in the keychain.
 ///
-/// For more information on `SecKeyAlgorithm`, see:
-/// <https://developer.apple.com/documentation/security/keychain_services/keychain_items/item_attribute_keys_and_values>
+/// Wrapper for `SecKeyAlgorithm`. See:
+/// <https://developer.apple.com/documentation/security/seckeyalgorithm>
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum SecKeyAlgorithm {
+pub enum KeyAlgorithm {
     /// Elliptic Curve Encryption Standard X963
     ECIESEncryptionStandardX963SHA1AESGCM,
 
@@ -236,216 +236,214 @@ pub enum SecKeyAlgorithm {
     RSASignatureMessagePSSSHA512,
 }
 
-impl SecKeyAlgorithm {
+impl KeyAlgorithm {
     /// Get `CFString` containing the `kSecKeyAlgorithm` dictionary value for
     /// a particular cryptographic algorithm.
     pub fn as_CFString(self) -> CFString {
         unsafe {
             CFString::wrap_under_get_rule(match self {
-                SecKeyAlgorithm::ECIESEncryptionStandardX963SHA1AESGCM => {
+                KeyAlgorithm::ECIESEncryptionStandardX963SHA1AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionStandardX963SHA1AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionStandardX963SHA224AESGCM => {
+                KeyAlgorithm::ECIESEncryptionStandardX963SHA224AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionStandardX963SHA224AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionStandardX963SHA256AESGCM => {
+                KeyAlgorithm::ECIESEncryptionStandardX963SHA256AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionStandardX963SHA256AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionStandardX963SHA384AESGCM => {
+                KeyAlgorithm::ECIESEncryptionStandardX963SHA384AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionStandardX963SHA384AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionStandardX963SHA512AESGCM => {
+                KeyAlgorithm::ECIESEncryptionStandardX963SHA512AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionStandardX963SHA512AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionStandardVariableIVX963SHA224AESGCM => {
+                KeyAlgorithm::ECIESEncryptionStandardVariableIVX963SHA224AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionStandardVariableIVX963SHA224AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionStandardVariableIVX963SHA256AESGCM => {
+                KeyAlgorithm::ECIESEncryptionStandardVariableIVX963SHA256AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionStandardVariableIVX963SHA256AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionStandardVariableIVX963SHA384AESGCM => {
+                KeyAlgorithm::ECIESEncryptionStandardVariableIVX963SHA384AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionStandardVariableIVX963SHA384AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionStandardVariableIVX963SHA512AESGCM => {
+                KeyAlgorithm::ECIESEncryptionStandardVariableIVX963SHA512AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionStandardVariableIVX963SHA512AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionCofactorVariableIVX963SHA224AESGCM => {
+                KeyAlgorithm::ECIESEncryptionCofactorVariableIVX963SHA224AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionCofactorVariableIVX963SHA224AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionCofactorVariableIVX963SHA256AESGCM => {
+                KeyAlgorithm::ECIESEncryptionCofactorVariableIVX963SHA256AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionCofactorVariableIVX963SHA256AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionCofactorVariableIVX963SHA384AESGCM => {
+                KeyAlgorithm::ECIESEncryptionCofactorVariableIVX963SHA384AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionCofactorVariableIVX963SHA384AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionCofactorVariableIVX963SHA512AESGCM => {
+                KeyAlgorithm::ECIESEncryptionCofactorVariableIVX963SHA512AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionCofactorVariableIVX963SHA512AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionCofactorX963SHA1AESGCM => {
+                KeyAlgorithm::ECIESEncryptionCofactorX963SHA1AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionCofactorX963SHA1AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionCofactorX963SHA224AESGCM => {
+                KeyAlgorithm::ECIESEncryptionCofactorX963SHA224AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionCofactorX963SHA224AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionCofactorX963SHA256AESGCM => {
+                KeyAlgorithm::ECIESEncryptionCofactorX963SHA256AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionCofactorX963SHA256AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionCofactorX963SHA384AESGCM => {
+                KeyAlgorithm::ECIESEncryptionCofactorX963SHA384AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionCofactorX963SHA384AESGCM
                 }
-                SecKeyAlgorithm::ECIESEncryptionCofactorX963SHA512AESGCM => {
+                KeyAlgorithm::ECIESEncryptionCofactorX963SHA512AESGCM => {
                     kSecKeyAlgorithmECIESEncryptionCofactorX963SHA512AESGCM
                 }
-                SecKeyAlgorithm::ECDSASignatureRFC4754 => kSecKeyAlgorithmECDSASignatureRFC4754,
-                SecKeyAlgorithm::ECDSASignatureDigestX962 => {
-                    kSecKeyAlgorithmECDSASignatureDigestX962
-                }
-                SecKeyAlgorithm::ECDSASignatureDigestX962SHA1 => {
+                KeyAlgorithm::ECDSASignatureRFC4754 => kSecKeyAlgorithmECDSASignatureRFC4754,
+                KeyAlgorithm::ECDSASignatureDigestX962 => kSecKeyAlgorithmECDSASignatureDigestX962,
+                KeyAlgorithm::ECDSASignatureDigestX962SHA1 => {
                     kSecKeyAlgorithmECDSASignatureDigestX962SHA1
                 }
-                SecKeyAlgorithm::ECDSASignatureDigestX962SHA224 => {
+                KeyAlgorithm::ECDSASignatureDigestX962SHA224 => {
                     kSecKeyAlgorithmECDSASignatureDigestX962SHA224
                 }
-                SecKeyAlgorithm::ECDSASignatureDigestX962SHA256 => {
+                KeyAlgorithm::ECDSASignatureDigestX962SHA256 => {
                     kSecKeyAlgorithmECDSASignatureDigestX962SHA256
                 }
-                SecKeyAlgorithm::ECDSASignatureDigestX962SHA384 => {
+                KeyAlgorithm::ECDSASignatureDigestX962SHA384 => {
                     kSecKeyAlgorithmECDSASignatureDigestX962SHA384
                 }
-                SecKeyAlgorithm::ECDSASignatureDigestX962SHA512 => {
+                KeyAlgorithm::ECDSASignatureDigestX962SHA512 => {
                     kSecKeyAlgorithmECDSASignatureDigestX962SHA512
                 }
-                SecKeyAlgorithm::ECDSASignatureMessageX962SHA1 => {
+                KeyAlgorithm::ECDSASignatureMessageX962SHA1 => {
                     kSecKeyAlgorithmECDSASignatureMessageX962SHA1
                 }
-                SecKeyAlgorithm::ECDSASignatureMessageX962SHA224 => {
+                KeyAlgorithm::ECDSASignatureMessageX962SHA224 => {
                     kSecKeyAlgorithmECDSASignatureMessageX962SHA224
                 }
-                SecKeyAlgorithm::ECDSASignatureMessageX962SHA256 => {
+                KeyAlgorithm::ECDSASignatureMessageX962SHA256 => {
                     kSecKeyAlgorithmECDSASignatureMessageX962SHA256
                 }
-                SecKeyAlgorithm::ECDSASignatureMessageX962SHA384 => {
+                KeyAlgorithm::ECDSASignatureMessageX962SHA384 => {
                     kSecKeyAlgorithmECDSASignatureMessageX962SHA384
                 }
-                SecKeyAlgorithm::ECDSASignatureMessageX962SHA512 => {
+                KeyAlgorithm::ECDSASignatureMessageX962SHA512 => {
                     kSecKeyAlgorithmECDSASignatureMessageX962SHA512
                 }
-                SecKeyAlgorithm::ECDHKeyExchangeCofactor => kSecKeyAlgorithmECDHKeyExchangeCofactor,
-                SecKeyAlgorithm::ECDHKeyExchangeStandard => kSecKeyAlgorithmECDHKeyExchangeStandard,
-                SecKeyAlgorithm::ECDHKeyExchangeCofactorX963SHA1 => {
+                KeyAlgorithm::ECDHKeyExchangeCofactor => kSecKeyAlgorithmECDHKeyExchangeCofactor,
+                KeyAlgorithm::ECDHKeyExchangeStandard => kSecKeyAlgorithmECDHKeyExchangeStandard,
+                KeyAlgorithm::ECDHKeyExchangeCofactorX963SHA1 => {
                     kSecKeyAlgorithmECDHKeyExchangeCofactorX963SHA1
                 }
-                SecKeyAlgorithm::ECDHKeyExchangeStandardX963SHA1 => {
+                KeyAlgorithm::ECDHKeyExchangeStandardX963SHA1 => {
                     kSecKeyAlgorithmECDHKeyExchangeStandardX963SHA1
                 }
-                SecKeyAlgorithm::ECDHKeyExchangeCofactorX963SHA224 => {
+                KeyAlgorithm::ECDHKeyExchangeCofactorX963SHA224 => {
                     kSecKeyAlgorithmECDHKeyExchangeCofactorX963SHA224
                 }
-                SecKeyAlgorithm::ECDHKeyExchangeCofactorX963SHA256 => {
+                KeyAlgorithm::ECDHKeyExchangeCofactorX963SHA256 => {
                     kSecKeyAlgorithmECDHKeyExchangeCofactorX963SHA256
                 }
-                SecKeyAlgorithm::ECDHKeyExchangeCofactorX963SHA384 => {
+                KeyAlgorithm::ECDHKeyExchangeCofactorX963SHA384 => {
                     kSecKeyAlgorithmECDHKeyExchangeCofactorX963SHA384
                 }
-                SecKeyAlgorithm::ECDHKeyExchangeCofactorX963SHA512 => {
+                KeyAlgorithm::ECDHKeyExchangeCofactorX963SHA512 => {
                     kSecKeyAlgorithmECDHKeyExchangeCofactorX963SHA512
                 }
-                SecKeyAlgorithm::ECDHKeyExchangeStandardX963SHA224 => {
+                KeyAlgorithm::ECDHKeyExchangeStandardX963SHA224 => {
                     kSecKeyAlgorithmECDHKeyExchangeStandardX963SHA224
                 }
-                SecKeyAlgorithm::ECDHKeyExchangeStandardX963SHA256 => {
+                KeyAlgorithm::ECDHKeyExchangeStandardX963SHA256 => {
                     kSecKeyAlgorithmECDHKeyExchangeStandardX963SHA256
                 }
-                SecKeyAlgorithm::ECDHKeyExchangeStandardX963SHA384 => {
+                KeyAlgorithm::ECDHKeyExchangeStandardX963SHA384 => {
                     kSecKeyAlgorithmECDHKeyExchangeStandardX963SHA384
                 }
-                SecKeyAlgorithm::ECDHKeyExchangeStandardX963SHA512 => {
+                KeyAlgorithm::ECDHKeyExchangeStandardX963SHA512 => {
                     kSecKeyAlgorithmECDHKeyExchangeStandardX963SHA512
                 }
-                SecKeyAlgorithm::RSAEncryptionRaw => kSecKeyAlgorithmRSAEncryptionRaw,
-                SecKeyAlgorithm::RSAEncryptionPKCS1 => kSecKeyAlgorithmRSAEncryptionPKCS1,
-                SecKeyAlgorithm::RSAEncryptionOAEPSHA1 => kSecKeyAlgorithmRSAEncryptionOAEPSHA1,
-                SecKeyAlgorithm::RSAEncryptionOAEPSHA224 => kSecKeyAlgorithmRSAEncryptionOAEPSHA224,
-                SecKeyAlgorithm::RSAEncryptionOAEPSHA256 => kSecKeyAlgorithmRSAEncryptionOAEPSHA256,
-                SecKeyAlgorithm::RSAEncryptionOAEPSHA384 => kSecKeyAlgorithmRSAEncryptionOAEPSHA384,
-                SecKeyAlgorithm::RSAEncryptionOAEPSHA512 => kSecKeyAlgorithmRSAEncryptionOAEPSHA512,
-                SecKeyAlgorithm::RSAEncryptionOAEPSHA1AESGCM => {
+                KeyAlgorithm::RSAEncryptionRaw => kSecKeyAlgorithmRSAEncryptionRaw,
+                KeyAlgorithm::RSAEncryptionPKCS1 => kSecKeyAlgorithmRSAEncryptionPKCS1,
+                KeyAlgorithm::RSAEncryptionOAEPSHA1 => kSecKeyAlgorithmRSAEncryptionOAEPSHA1,
+                KeyAlgorithm::RSAEncryptionOAEPSHA224 => kSecKeyAlgorithmRSAEncryptionOAEPSHA224,
+                KeyAlgorithm::RSAEncryptionOAEPSHA256 => kSecKeyAlgorithmRSAEncryptionOAEPSHA256,
+                KeyAlgorithm::RSAEncryptionOAEPSHA384 => kSecKeyAlgorithmRSAEncryptionOAEPSHA384,
+                KeyAlgorithm::RSAEncryptionOAEPSHA512 => kSecKeyAlgorithmRSAEncryptionOAEPSHA512,
+                KeyAlgorithm::RSAEncryptionOAEPSHA1AESGCM => {
                     kSecKeyAlgorithmRSAEncryptionOAEPSHA1AESGCM
                 }
-                SecKeyAlgorithm::RSAEncryptionOAEPSHA224AESGCM => {
+                KeyAlgorithm::RSAEncryptionOAEPSHA224AESGCM => {
                     kSecKeyAlgorithmRSAEncryptionOAEPSHA224AESGCM
                 }
-                SecKeyAlgorithm::RSAEncryptionOAEPSHA256AESGCM => {
+                KeyAlgorithm::RSAEncryptionOAEPSHA256AESGCM => {
                     kSecKeyAlgorithmRSAEncryptionOAEPSHA256AESGCM
                 }
-                SecKeyAlgorithm::RSAEncryptionOAEPSHA384AESGCM => {
+                KeyAlgorithm::RSAEncryptionOAEPSHA384AESGCM => {
                     kSecKeyAlgorithmRSAEncryptionOAEPSHA384AESGCM
                 }
-                SecKeyAlgorithm::RSAEncryptionOAEPSHA512AESGCM => {
+                KeyAlgorithm::RSAEncryptionOAEPSHA512AESGCM => {
                     kSecKeyAlgorithmRSAEncryptionOAEPSHA512AESGCM
                 }
-                SecKeyAlgorithm::RSASignatureRaw => kSecKeyAlgorithmRSASignatureRaw,
-                SecKeyAlgorithm::RSASignatureDigestPKCS1v15Raw => {
+                KeyAlgorithm::RSASignatureRaw => kSecKeyAlgorithmRSASignatureRaw,
+                KeyAlgorithm::RSASignatureDigestPKCS1v15Raw => {
                     kSecKeyAlgorithmRSASignatureDigestPKCS1v15Raw
                 }
-                SecKeyAlgorithm::RSASignatureDigestPKCS1v15SHA1 => {
+                KeyAlgorithm::RSASignatureDigestPKCS1v15SHA1 => {
                     kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA1
                 }
-                SecKeyAlgorithm::RSASignatureDigestPKCS1v15SHA224 => {
+                KeyAlgorithm::RSASignatureDigestPKCS1v15SHA224 => {
                     kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA224
                 }
-                SecKeyAlgorithm::RSASignatureDigestPKCS1v15SHA256 => {
+                KeyAlgorithm::RSASignatureDigestPKCS1v15SHA256 => {
                     kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256
                 }
-                SecKeyAlgorithm::RSASignatureDigestPKCS1v15SHA384 => {
+                KeyAlgorithm::RSASignatureDigestPKCS1v15SHA384 => {
                     kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA384
                 }
-                SecKeyAlgorithm::RSASignatureDigestPKCS1v15SHA512 => {
+                KeyAlgorithm::RSASignatureDigestPKCS1v15SHA512 => {
                     kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA512
                 }
-                SecKeyAlgorithm::RSASignatureMessagePKCS1v15SHA1 => {
+                KeyAlgorithm::RSASignatureMessagePKCS1v15SHA1 => {
                     kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA1
                 }
-                SecKeyAlgorithm::RSASignatureMessagePKCS1v15SHA224 => {
+                KeyAlgorithm::RSASignatureMessagePKCS1v15SHA224 => {
                     kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA224
                 }
-                SecKeyAlgorithm::RSASignatureMessagePKCS1v15SHA256 => {
+                KeyAlgorithm::RSASignatureMessagePKCS1v15SHA256 => {
                     kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256
                 }
-                SecKeyAlgorithm::RSASignatureMessagePKCS1v15SHA384 => {
+                KeyAlgorithm::RSASignatureMessagePKCS1v15SHA384 => {
                     kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA384
                 }
-                SecKeyAlgorithm::RSASignatureMessagePKCS1v15SHA512 => {
+                KeyAlgorithm::RSASignatureMessagePKCS1v15SHA512 => {
                     kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA512
                 }
-                SecKeyAlgorithm::RSASignatureDigestPSSSHA1 => {
+                KeyAlgorithm::RSASignatureDigestPSSSHA1 => {
                     kSecKeyAlgorithmRSASignatureDigestPSSSHA1
                 }
-                SecKeyAlgorithm::RSASignatureDigestPSSSHA224 => {
+                KeyAlgorithm::RSASignatureDigestPSSSHA224 => {
                     kSecKeyAlgorithmRSASignatureDigestPSSSHA224
                 }
-                SecKeyAlgorithm::RSASignatureDigestPSSSHA256 => {
+                KeyAlgorithm::RSASignatureDigestPSSSHA256 => {
                     kSecKeyAlgorithmRSASignatureDigestPSSSHA256
                 }
-                SecKeyAlgorithm::RSASignatureDigestPSSSHA384 => {
+                KeyAlgorithm::RSASignatureDigestPSSSHA384 => {
                     kSecKeyAlgorithmRSASignatureDigestPSSSHA384
                 }
-                SecKeyAlgorithm::RSASignatureDigestPSSSHA512 => {
+                KeyAlgorithm::RSASignatureDigestPSSSHA512 => {
                     kSecKeyAlgorithmRSASignatureDigestPSSSHA512
                 }
-                SecKeyAlgorithm::RSASignatureMessagePSSSHA1 => {
+                KeyAlgorithm::RSASignatureMessagePSSSHA1 => {
                     kSecKeyAlgorithmRSASignatureMessagePSSSHA1
                 }
-                SecKeyAlgorithm::RSASignatureMessagePSSSHA224 => {
+                KeyAlgorithm::RSASignatureMessagePSSSHA224 => {
                     kSecKeyAlgorithmRSASignatureMessagePSSSHA224
                 }
-                SecKeyAlgorithm::RSASignatureMessagePSSSHA256 => {
+                KeyAlgorithm::RSASignatureMessagePSSSHA256 => {
                     kSecKeyAlgorithmRSASignatureMessagePSSSHA256
                 }
-                SecKeyAlgorithm::RSASignatureMessagePSSSHA384 => {
+                KeyAlgorithm::RSASignatureMessagePSSSHA384 => {
                     kSecKeyAlgorithmRSASignatureMessagePSSSHA384
                 }
-                SecKeyAlgorithm::RSASignatureMessagePSSSHA512 => {
+                KeyAlgorithm::RSASignatureMessagePSSSHA512 => {
                     kSecKeyAlgorithmRSASignatureMessagePSSSHA512
                 }
             })
