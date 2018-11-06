@@ -6,7 +6,7 @@ access to cryptographic keys stored in the Secure Enclave
 Processor (SEP).
 """
 
-version       = "0.0.2"
+version       = "0.1.0"
 authors       = ["Tony Arcieri <tony@iqlusion.io>"]
 license       = "Apache-2.0"
 homepage      = "https://keychain-services.rs/"
