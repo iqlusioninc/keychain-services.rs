@@ -16,8 +16,8 @@ use ffi::*;
 /// Trait implemented by all `Attr*` types to simplify adding them to
 /// attribute dictionaries.
 pub(crate) trait TAttr {
-    /// Get the attribute kind (i.e. `SecAttr` enum variant) for this attribute
-    fn kind(&self) -> Attr;
+    /// Get the `AttrKind` for this attribute.
+    fn kind(&self) -> AttrKind;
 
     /// Get a `CFType` object representing this attribute.
     fn as_CFType(&self) -> CFType;
@@ -26,7 +26,7 @@ pub(crate) trait TAttr {
 /// Enum of attribute types passed in parameter dictionaries. This wraps up
 /// access to framework constants which would otherwise be unsafe.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub(crate) enum Attr {
+pub(crate) enum AttrKind {
     /// Wrapper for the `kSecAttrAccessControl` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattraccesscontrol>
     AccessControl,
@@ -88,31 +88,81 @@ pub(crate) enum Attr {
     TokenId,
 }
 
-impl From<Attr> for CFStringRef {
-    fn from(attr: Attr) -> CFStringRef {
+impl AttrKind {
+    /// Attempt to look up an attribute kind by its `SecKeychainAttrType`.
+    // TODO: cache `SecKeychainAttrTypes`? e.g. as `lazy_static`
+    pub(crate) fn from_tag(tag: SecKeychainAttrType) -> Option<Self> {
+        let result = unsafe {
+            if tag == SecKeychainAttrType::from(kSecAttrAccessControl) {
+                AttrKind::AccessControl
+            } else if tag == SecKeychainAttrType::from(kSecAttrAccessible) {
+                AttrKind::Accessible
+            } else if tag == SecKeychainAttrType::from(kSecAttrAccount) {
+                AttrKind::Account
+            } else if tag == SecKeychainAttrType::from(kSecAttrApplicationLabel) {
+                AttrKind::ApplicationLabel
+            } else if tag == SecKeychainAttrType::from(kSecAttrApplicationTag) {
+                AttrKind::ApplicationTag
+            } else if tag == SecKeychainAttrType::from(kSecAttrKeyClass) {
+                AttrKind::KeyClass
+            } else if tag == SecKeychainAttrType::from(kSecAttrKeySizeInBits) {
+                AttrKind::KeySizeInBits
+            } else if tag == SecKeychainAttrType::from(kSecAttrKeyType) {
+                AttrKind::KeyType
+            } else if tag == SecKeychainAttrType::from(kSecAttrIsPermanent) {
+                AttrKind::IsPermanent
+            } else if tag == SecKeychainAttrType::from(kSecAttrLabel) {
+                AttrKind::Label
+            } else if tag == SecKeychainAttrType::from(kSecAttrProtocol) {
+                AttrKind::Protocol
+            } else if tag == SecKeychainAttrType::from(kSecAttrServer) {
+                AttrKind::Server
+            } else if tag == SecKeychainAttrType::from(kSecAttrService) {
+                AttrKind::Service
+            } else if tag == SecKeychainAttrType::from(kSecAttrSynchronizable) {
+                AttrKind::Synchronizable
+            } else if tag == SecKeychainAttrType::from(kSecAttrTokenID) {
+                AttrKind::TokenId
+            } else {
+                return None;
+            }
+        };
+
+        Some(result)
+    }
+}
+
+impl From<SecKeychainAttrType> for AttrKind {
+    fn from(tag: SecKeychainAttrType) -> Self {
+        Self::from_tag(tag).unwrap_or_else(|| panic!("invalid SecKeychainAttrType tag: {:?}", tag))
+    }
+}
+
+impl From<AttrKind> for CFStringRef {
+    fn from(attr: AttrKind) -> CFStringRef {
         unsafe {
             match attr {
-                Attr::AccessControl => kSecAttrAccessControl,
-                Attr::Accessible => kSecAttrAccessible,
-                Attr::Account => kSecAttrAccount,
-                Attr::ApplicationLabel => kSecAttrApplicationLabel,
-                Attr::ApplicationTag => kSecAttrApplicationTag,
-                Attr::KeyClass => kSecAttrKeyClass,
-                Attr::KeySizeInBits => kSecAttrKeySizeInBits,
-                Attr::KeyType => kSecAttrKeyType,
-                Attr::IsPermanent => kSecAttrIsPermanent,
-                Attr::Label => kSecAttrLabel,
-                Attr::Protocol => kSecAttrProtocol,
-                Attr::Server => kSecAttrServer,
-                Attr::Service => kSecAttrService,
-                Attr::Synchronizable => kSecAttrSynchronizable,
-                Attr::TokenId => kSecAttrTokenID,
+                AttrKind::AccessControl => kSecAttrAccessControl,
+                AttrKind::Accessible => kSecAttrAccessible,
+                AttrKind::Account => kSecAttrAccount,
+                AttrKind::ApplicationLabel => kSecAttrApplicationLabel,
+                AttrKind::ApplicationTag => kSecAttrApplicationTag,
+                AttrKind::KeyClass => kSecAttrKeyClass,
+                AttrKind::KeySizeInBits => kSecAttrKeySizeInBits,
+                AttrKind::KeyType => kSecAttrKeyType,
+                AttrKind::IsPermanent => kSecAttrIsPermanent,
+                AttrKind::Label => kSecAttrLabel,
+                AttrKind::Protocol => kSecAttrProtocol,
+                AttrKind::Server => kSecAttrServer,
+                AttrKind::Service => kSecAttrService,
+                AttrKind::Synchronizable => kSecAttrSynchronizable,
+                AttrKind::TokenId => kSecAttrTokenID,
             }
         }
     }
 }
 
-unsafe impl ToVoid<CFType> for Attr {
+unsafe impl ToVoid<CFType> for AttrKind {
     fn to_void(&self) -> *const c_void {
         CFStringRef::from(*self).to_void()
     }
@@ -183,8 +233,8 @@ impl AttrAccessible {
 }
 
 impl TAttr for AttrAccessible {
-    fn kind(&self) -> Attr {
-        Attr::Accessible
+    fn kind(&self) -> AttrKind {
+        AttrKind::Accessible
     }
 
     fn as_CFType(&self) -> CFType {
@@ -236,8 +286,8 @@ impl<'a> From<&'a [u8]> for AttrApplicationLabel {
 }
 
 impl TAttr for AttrApplicationLabel {
-    fn kind(&self) -> Attr {
-        Attr::ApplicationLabel
+    fn kind(&self) -> AttrKind {
+        AttrKind::ApplicationLabel
     }
 
     fn as_CFType(&self) -> CFType {
@@ -299,8 +349,8 @@ impl<'a> From<&'a str> for AttrApplicationTag {
 }
 
 impl TAttr for AttrApplicationTag {
-    fn kind(&self) -> Attr {
-        Attr::ApplicationTag
+    fn kind(&self) -> AttrKind {
+        AttrKind::ApplicationTag
     }
 
     fn as_CFType(&self) -> CFType {
@@ -335,8 +385,8 @@ impl<'a> From<&'a str> for AttrLabel {
 }
 
 impl TAttr for AttrLabel {
-    fn kind(&self) -> Attr {
-        Attr::Label
+    fn kind(&self) -> AttrKind {
+        AttrKind::Label
     }
 
     fn as_CFType(&self) -> CFType {
@@ -386,8 +436,8 @@ impl AttrKeyClass {
 }
 
 impl TAttr for AttrKeyClass {
-    fn kind(&self) -> Attr {
-        Attr::KeyClass
+    fn kind(&self) -> AttrKind {
+        AttrKind::KeyClass
     }
 
     fn as_CFType(&self) -> CFType {
@@ -437,8 +487,8 @@ impl AttrKeyType {
 }
 
 impl TAttr for AttrKeyType {
-    fn kind(&self) -> Attr {
-        Attr::KeyType
+    fn kind(&self) -> AttrKind {
+        AttrKind::KeyType
     }
 
     fn as_CFType(&self) -> CFType {
@@ -590,8 +640,8 @@ impl AttrProtocol {
 }
 
 impl TAttr for AttrProtocol {
-    fn kind(&self) -> Attr {
-        Attr::Protocol
+    fn kind(&self) -> AttrKind {
+        AttrKind::Protocol
     }
 
     fn as_CFType(&self) -> CFType {
@@ -626,8 +676,8 @@ impl AttrTokenId {
 }
 
 impl TAttr for AttrTokenId {
-    fn kind(&self) -> Attr {
-        Attr::TokenId
+    fn kind(&self) -> AttrKind {
+        AttrKind::TokenId
     }
 
     fn as_CFType(&self) -> CFType {

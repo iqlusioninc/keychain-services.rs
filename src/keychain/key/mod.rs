@@ -15,7 +15,7 @@ use attr::*;
 use dictionary::{Dictionary, DictionaryBuilder};
 use error::Error;
 use ffi::*;
-use keychain::{ItemClass, ItemQuery, MatchLimit};
+use keychain::item::{self, MatchLimit};
 use signature::Signature;
 
 mod algorithm;
@@ -38,9 +38,9 @@ impl Key {
     ///
     /// Wrapper for `SecItemCopyMatching`. See:
     /// <https://developer.apple.com/documentation/security/1398306-secitemcopymatching>
-    pub fn find(query: ItemQuery) -> Result<Self, Error> {
+    pub fn find(query: item::Query) -> Result<Self, Error> {
         let mut params = DictionaryBuilder::from(query);
-        params.add(unsafe { kSecClass }, &ItemClass::Key.as_CFString());
+        params.add(unsafe { kSecClass }, &item::Class::Key.as_CFString());
         params.add(unsafe { kSecMatchLimit }, &MatchLimit::One.as_CFType());
         params.add_boolean(unsafe { kSecReturnRef }, true);
 
@@ -62,16 +62,18 @@ impl Key {
 
     /// Get the `AttrApplicationLabel` for this `Key`.
     pub fn application_label(&self) -> Option<AttrApplicationLabel> {
-        self.attributes().find(Attr::ApplicationLabel).map(|tag| {
-            AttrApplicationLabel(unsafe {
-                CFData::wrap_under_get_rule(tag.as_CFTypeRef() as CFDataRef)
+        self.attributes()
+            .find(AttrKind::ApplicationLabel)
+            .map(|tag| {
+                AttrApplicationLabel(unsafe {
+                    CFData::wrap_under_get_rule(tag.as_CFTypeRef() as CFDataRef)
+                })
             })
-        })
     }
 
     /// Get the `AttrApplicationTag` for this `Key`.
     pub fn application_tag(&self) -> Option<AttrApplicationTag> {
-        self.attributes().find(Attr::ApplicationTag).map(|tag| {
+        self.attributes().find(AttrKind::ApplicationTag).map(|tag| {
             AttrApplicationTag(unsafe {
                 CFData::wrap_under_get_rule(tag.as_CFTypeRef() as CFDataRef)
             })
@@ -80,7 +82,7 @@ impl Key {
 
     /// Get the `AttrLabel` for this `Key`.
     pub fn label(&self) -> Option<AttrLabel> {
-        self.attributes().find(Attr::Label).map(|label| {
+        self.attributes().find(AttrKind::Label).map(|label| {
             AttrLabel(unsafe { CFString::wrap_under_get_rule(label.as_CFTypeRef() as CFStringRef) })
         })
     }

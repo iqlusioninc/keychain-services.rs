@@ -1,11 +1,85 @@
 use core_foundation::{
-    base::{CFAllocatorRef, CFOptionFlags, CFTypeID, CFTypeRef, OSStatus},
+    base::{CFAllocatorRef, CFOptionFlags, CFTypeID, CFTypeRef, OSStatus, TCFType},
     data::CFDataRef,
     dictionary::CFDictionaryRef,
     error::CFErrorRef,
-    string::CFStringRef,
+    string::{CFString, CFStringRef},
 };
-use std::os::raw::{c_char, c_void};
+use std::{
+    borrow::Cow,
+    fmt::{self, Debug},
+    os::raw::{c_char, c_void},
+    ptr, slice, str,
+};
+
+/// Four character codes used as identifiers. See:
+/// <https://developer.apple.com/documentation/kernel/fourcharcode>
+#[repr(transparent)]
+#[derive(Copy, Clone, Eq, Hash, PartialEq, PartialOrd, Ord)]
+pub(crate) struct FourCharacterCode(u32);
+
+impl FourCharacterCode {
+    fn as_bytes(&self) -> &[u8; 4] {
+        unsafe { &*(self as *const FourCharacterCode as *const [u8; 4]) }
+    }
+
+    fn as_str(&self) -> &str {
+        str::from_utf8(self.as_bytes()).unwrap()
+    }
+}
+
+impl AsRef<str> for FourCharacterCode {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+
+impl Debug for FourCharacterCode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "FourCharacterCode({})", self.as_str())
+    }
+}
+
+impl From<u32> for FourCharacterCode {
+    fn from(num: u32) -> FourCharacterCode {
+        FourCharacterCode(num)
+    }
+}
+
+impl From<[u8; 4]> for FourCharacterCode {
+    fn from(bytes: [u8; 4]) -> FourCharacterCode {
+        Self::from(&bytes)
+    }
+}
+
+impl<'a> From<&'a [u8; 4]> for FourCharacterCode {
+    fn from(bytes: &[u8; 4]) -> FourCharacterCode {
+        let mut result: u32 = 0;
+
+        unsafe {
+            ptr::copy_nonoverlapping(bytes.as_ptr(), (&mut result as *mut u32) as *mut u8, 4);
+        }
+
+        FourCharacterCode(result)
+    }
+}
+
+impl From<CFStringRef> for FourCharacterCode {
+    fn from(string_ref: CFStringRef) -> FourCharacterCode {
+        Self::from(&unsafe { CFString::wrap_under_get_rule(string_ref) })
+    }
+}
+
+impl<'a> From<&'a CFString> for FourCharacterCode {
+    fn from(string: &'a CFString) -> FourCharacterCode {
+        let string = Cow::from(string);
+        assert_eq!(string.as_bytes().len(), 4);
+
+        let mut code = [0u8; 4];
+        code.copy_from_slice(string.as_bytes());
+        code.into()
+    }
+}
 
 /// Reference to an access control policy.
 ///
@@ -25,11 +99,69 @@ pub(crate) type KeyRef = CFTypeRef;
 /// <https://developer.apple.com/documentation/security/seckeychainref>
 pub(crate) type KeychainRef = CFTypeRef;
 
-/// Reference to a `KeychainItem`
+/// Reference to a `keychain::Item`
 ///
 /// See `SecKeychainItemRef` documentation:
 /// <https://developer.apple.com/documentation/security/seckeychainitemref>
-pub(crate) type KeychainItemRef = CFTypeRef;
+pub(crate) type ItemRef = CFTypeRef;
+
+/// Attribute type codes.
+///
+/// Wrapper for `SecKeychainAttrType`. See:
+/// <https://developer.apple.com/documentation/security/seckeychainattrtype>
+pub(crate) type SecKeychainAttrType = FourCharacterCode;
+
+/// Individual keychain attribute.
+///
+/// Wrapper for the `SecKeychainAttribute` struct. See:
+/// <https://developer.apple.com/documentation/security/seckeychainattribute>
+#[repr(C)]
+pub(super) struct SecKeychainAttribute {
+    tag: SecKeychainAttrType,
+    length: u32,
+    data: *mut u8,
+}
+
+impl SecKeychainAttribute {
+    /// Get the `FourCharacterCode` tag identifying this attribute's type
+    pub(crate) fn tag(&self) -> SecKeychainAttrType {
+        self.tag
+    }
+
+    /// Get the data associated with this attribute as a byte slice.
+    pub(crate) fn data(&self) -> Option<&[u8]> {
+        if self.data.is_null() {
+            None
+        } else {
+            Some(unsafe { slice::from_raw_parts(self.data, self.length as usize) })
+        }
+    }
+}
+
+/// List of attributes (as returned from e.g. `SecKeychainItemCopyContent`).
+///
+/// NOTE: This type does not implement `Drop` as there are various ways it can
+/// be allocated/deallocated. The caller must take care to free it!
+///
+/// Wrapper for the `SecKeychainAttributeList` struct. See:
+/// <https://developer.apple.com/documentation/security/seckeychainattributelist>
+#[repr(C)]
+pub(super) struct SecKeychainAttributeList {
+    count: u32,
+    attr: *mut SecKeychainAttribute,
+}
+
+impl SecKeychainAttributeList {
+    /// Get an iterator over this attribute list.
+    pub(crate) fn iter(&self) -> slice::Iter<SecKeychainAttribute> {
+        self.as_slice().iter()
+    }
+
+    /// Get a slice of `Attribute` values
+    pub(crate) fn as_slice(&self) -> &[SecKeychainAttribute] {
+        unsafe { slice::from_raw_parts(self.attr, self.count as usize) }
+    }
+}
 
 #[link(name = "Security", kind = "framework")]
 extern "C" {
@@ -188,7 +320,9 @@ extern "C" {
     pub(crate) static kSecMatchLimitAll: CFStringRef;
     pub(crate) static kSecPrivateKeyAttrs: CFStringRef;
     pub(crate) static kSecReturnRef: CFStringRef;
+    pub(crate) static kSecUseKeychain: CFStringRef;
     pub(crate) static kSecUseOperationPrompt: CFStringRef;
+    pub(crate) static kSecValueData: CFStringRef;
 
     pub(crate) fn SecAccessControlCreateWithFlags(
         allocator: CFAllocatorRef,
@@ -201,6 +335,7 @@ extern "C" {
         status: OSStatus,
         reserved: *const c_void,
     ) -> CFStringRef;
+    pub(crate) fn SecItemAdd(attributes: CFDictionaryRef, result: *mut CFTypeRef) -> OSStatus;
     pub(crate) fn SecItemCopyMatching(query: CFDictionaryRef, result: *mut CFTypeRef) -> OSStatus;
     pub(crate) fn SecKeyCopyAttributes(key: KeyRef) -> CFDictionaryRef;
     pub(crate) fn SecKeyCopyExternalRepresentation(
@@ -231,4 +366,15 @@ extern "C" {
     pub(crate) fn SecKeychainDelete(keychain_or_array: KeychainRef) -> OSStatus;
     pub(crate) fn SecKeychainGetTypeID() -> CFTypeID;
     pub(crate) fn SecKeychainItemGetTypeID() -> CFTypeID;
+    pub(crate) fn SecKeychainItemCopyContent(
+        item_ref: ItemRef,
+        itemClass: *mut FourCharacterCode,
+        attr_list: *mut SecKeychainAttributeList,
+        data_length: *mut u32,
+        data_out: *mut *mut c_void,
+    ) -> OSStatus;
+    pub(crate) fn SecKeychainItemFreeContent(
+        attr_list: *mut SecKeychainAttributeList,
+        data: *mut c_void,
+    ) -> OSStatus;
 }
