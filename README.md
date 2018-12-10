@@ -94,10 +94,10 @@ additional terms or conditions.
 
 [crate-image]: https://img.shields.io/crates/v/keychain-services.svg
 [crate-link]: https://crates.io/crates/keychain-services
-[build-image]: https://travis-ci.org/iqlusioninc/keychain-services-rs.svg?branch=master
-[build-link]: https://travis-ci.org/iqlusioninc/keychain-services-rs
+[build-image]: https://travis-ci.org/iqlusioninc/keychain-services.rs.svg?branch=master
+[build-link]: https://travis-ci.org/iqlusioninc/keychain-services.rs
 [license-image]: https://img.shields.io/badge/license-Apache2.0/MIT-blue.svg
-[license-link]: https://github.com/iqlusioninc/keychain-services-rs/blob/master/LICENSE-APACHE
+[license-link]: https://github.com/iqlusioninc/keychain-services.rs/blob/master/LICENSE-APACHE
 [maintenance-image]: https://img.shields.io/badge/maintenance-experimental-blue.svg
 [Documentation]: https://keychain-services.rs/docs/
 [codesign]: https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html#//apple_ref/doc/uid/TP40005929-CH4-SW4
