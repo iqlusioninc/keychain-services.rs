@@ -1,5 +1,6 @@
 //! Error types
 
+use crate::ffi::*;
 use core_foundation::{
     base::{CFRelease, CFTypeRef, OSStatus, TCFType},
     error::{CFErrorCopyDescription, CFErrorGetCode, CFErrorGetDomain, CFErrorRef},
@@ -10,8 +11,6 @@ use std::{
     fmt::{self, Display},
     io, ptr,
 };
-
-use ffi::*;
 
 /// No error occurred.
 /// <https://developer.apple.com/documentation/security/errsecsuccess>
@@ -468,11 +467,7 @@ pub enum ErrorKind {
     ///
     /// For more information, see:
     /// <https://developer.apple.com/documentation/corefoundation/1494656-cferrorgetcode?language=objc>
-    #[fail(
-        display = "Core Foundation error (code: {}, domain: {})",
-        code,
-        domain
-    )]
+    #[fail(display = "Core Foundation error (code: {}, domain: {})", code, domain)]
     CFError {
         /// Code identifying this type of `CFError`.
         ///

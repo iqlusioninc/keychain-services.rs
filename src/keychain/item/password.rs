@@ -1,11 +1,6 @@
+use crate::{attr::*, dictionary::DictionaryBuilder, error::Error, ffi::*, keychain::*};
 use std::str;
 use zeroize::Zeroize;
-
-use attr::*;
-use dictionary::DictionaryBuilder;
-use error::Error;
-use ffi::*;
-use keychain::*;
 
 /// Generic passwords
 pub struct GenericPassword(Item);

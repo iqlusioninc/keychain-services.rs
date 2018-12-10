@@ -1,19 +1,17 @@
 //! Keychains
 
-use core_foundation::base::{CFTypeRef, TCFType};
-use std::{ffi::CString, os::raw::c_char, os::unix::ffi::OsStrExt, path::Path, ptr};
-
-use dictionary::*;
-use error::Error;
-use ffi::*;
-
 pub mod item;
 pub mod key;
 
 use self::item::MatchLimit;
 pub use self::{item::Item, key::Key};
+use crate::dictionary::*;
+use crate::error::Error;
+use crate::ffi::*;
+use core_foundation::base::{CFTypeRef, TCFType};
+use std::{ffi::CString, os::raw::c_char, os::unix::ffi::OsStrExt, path::Path, ptr};
 
-declare_TCFType!{
+declare_TCFType! {
     /// Keychains which store cryptographic keys, passwords, and other secrets.
     ///
     /// Wrapper for the `SecKeychain`/`SecKeychainRef` types:

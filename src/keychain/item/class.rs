@@ -1,6 +1,5 @@
+use crate::ffi::*;
 use core_foundation::{base::TCFType, string::CFString};
-
-use ffi::*;
 
 /// Classes of keychain items supported by Keychain Services
 /// (not to be confused with `SecAttrClass` or `SecType`)

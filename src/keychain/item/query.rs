@@ -1,14 +1,11 @@
 //! Query the keychain, looking for particular items
 
+use crate::{attr::*, dictionary::DictionaryBuilder, ffi::*};
 use core_foundation::{
     base::{CFType, TCFType},
     number::CFNumber,
     string::CFString,
 };
-
-use attr::*;
-use dictionary::DictionaryBuilder;
-use ffi::*;
 
 /// Limit the number of matched items to one or an unlimited number.
 ///

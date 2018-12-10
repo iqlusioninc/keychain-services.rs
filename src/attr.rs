@@ -1,5 +1,6 @@
 //! Keychain item attributes (i.e. `SecAttr*`)
 
+use crate::ffi::*;
 use core_foundation::{
     base::{CFType, TCFType, ToVoid},
     data::CFData,
@@ -10,8 +11,6 @@ use std::{
     fmt::{self, Debug, Display},
     str::{self, Utf8Error},
 };
-
-use ffi::*;
 
 /// Trait implemented by all `Attr*` types to simplify adding them to
 /// attribute dictionaries.

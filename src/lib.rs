@@ -40,28 +40,14 @@
 
 #![crate_name = "keychain_services"]
 #![crate_type = "rlib"]
-#![allow(
-    unknown_lints,
-    suspicious_arithmetic_impl,
-    non_snake_case,
-    non_upper_case_globals
-)]
-#![deny(
-    warnings,
-    missing_docs,
-    unused_import_braces,
-    unused_qualifications
-)]
+#![allow(non_snake_case, non_upper_case_globals)]
+#![deny(warnings, missing_docs, unused_import_braces, unused_qualifications)]
 
 #[cfg(not(target_os = "macos"))]
-compile_error!("This crate presently only compiles on macOS.");
+compile_error!("This crate presently only compiles on macOS (see GH issue #5 for iOS support)");
 
 #[macro_use]
 extern crate core_foundation;
-extern crate failure;
-#[macro_use]
-extern crate failure_derive;
-extern crate zeroize;
 
 mod access;
 mod attr;
@@ -71,9 +57,9 @@ mod ffi;
 pub mod keychain;
 mod signature;
 
-pub use access::*;
-pub use attr::*;
-pub use error::*;
-pub use key::*;
-pub use keychain::*;
-pub use signature::*;
+pub use crate::access::*;
+pub use crate::attr::*;
+pub use crate::error::*;
+pub use crate::key::*;
+pub use crate::keychain::*;
+pub use crate::signature::*;

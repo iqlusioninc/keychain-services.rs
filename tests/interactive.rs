@@ -10,10 +10,7 @@
 //!
 //! <https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html>
 
-// TODO: these aren't working correctly yet.
-
-extern crate keychain_services;
-extern crate tempfile;
+// TODO: these tests presently fail (possibly due to a codesigning issue?)
 
 use keychain_services::*;
 use tempfile::TempDir;

@@ -1,10 +1,7 @@
+use super::*;
+use crate::{access::AccessControl, dictionary::*, error::Error};
 use core_foundation::base::TCFType;
 use std::ptr;
-
-use super::*;
-use access::AccessControl;
-use dictionary::*;
-use error::Error;
 
 /// Public key pairs (i.e. public and private key) stored in the keychain.
 #[derive(Debug)]
