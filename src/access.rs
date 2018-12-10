@@ -1,6 +1,7 @@
 //! Keychain item access control types: ACLs and policies around usage of
 //! private keys stored in the keychain.
 
+use crate::{attr::AttrAccessible, error::Error, ffi::*};
 use core_foundation::{
     base::{kCFAllocatorDefault, CFOptionFlags, TCFType},
     error::CFErrorRef,
@@ -9,10 +10,6 @@ use std::{
     fmt::{self, Debug},
     ptr,
 };
-
-use attr::AttrAccessible;
-use error::Error;
-use ffi::*;
 
 /// Marker trait for types which can be used as `AccessControlFlags`.
 pub trait AccessControlFlag: Copy + Clone + Sized + Into<CFOptionFlags> {}
@@ -163,7 +160,7 @@ where
     }
 }
 
-declare_TCFType!{
+declare_TCFType! {
     /// Access control policy (a.k.a. ACL) for a keychain item, combining both a
     /// set of `AccessControlFlags` and a `AttrAccessible` restriction.
     ///

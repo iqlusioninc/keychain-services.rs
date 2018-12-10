@@ -1,5 +1,17 @@
 //! Keys stored in macOS Keychain Services.
 
+mod algorithm;
+mod pair;
+
+pub use self::{algorithm::*, pair::*};
+use crate::{
+    attr::*,
+    dictionary::{Dictionary, DictionaryBuilder},
+    error::Error,
+    ffi::*,
+    keychain::item::{self, MatchLimit},
+    signature::Signature,
+};
 use core_foundation::{
     base::{CFTypeRef, TCFType},
     data::{CFData, CFDataRef},
@@ -11,19 +23,7 @@ use std::{
     ptr,
 };
 
-use attr::*;
-use dictionary::{Dictionary, DictionaryBuilder};
-use error::Error;
-use ffi::*;
-use keychain::item::{self, MatchLimit};
-use signature::Signature;
-
-mod algorithm;
-mod pair;
-
-pub use self::{algorithm::*, pair::*};
-
-declare_TCFType!{
+declare_TCFType! {
     /// Object which represents a cryptographic key.
     ///
     /// Wrapper for the `SecKey`/`SecKeyRef` types:

@@ -3,11 +3,6 @@
 //! This suite is mainly intended to run in CI. See `tests/interactive.rs`
 //! for notes on how to run the full test suite.
 
-extern crate keychain_services;
-extern crate ring;
-extern crate tempfile;
-extern crate untrusted;
-
 use keychain_services::*;
 
 const TEST_MESSAGE: &[u8] = b"Embed confidential information in items that you store in a keychain";
@@ -35,5 +30,6 @@ fn generate_and_sign_with_ecdsa_keys() {
         untrusted::Input::from(&public_key_bytes),
         untrusted::Input::from(TEST_MESSAGE),
         untrusted::Input::from(signature.as_ref()),
-    ).unwrap();
+    )
+    .unwrap();
 }

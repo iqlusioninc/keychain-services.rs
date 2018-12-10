@@ -1,19 +1,15 @@
 //! Items stored in a keychain (e.g. certificates, keys, passwords)
 
-use core_foundation::base::TCFType;
-use std::{mem, os::raw::c_void, ptr, slice};
-
-use attr::AttrKind;
-use error::*;
-use ffi::*;
-
 mod class;
 mod password;
 mod query;
 
 pub use self::{class::*, password::*, query::*};
+use crate::{attr::AttrKind, error::*, ffi::*};
+use core_foundation::base::TCFType;
+use std::{mem, os::raw::c_void, ptr, slice};
 
-declare_TCFType!{
+declare_TCFType! {
     /// Items stored in the keychain.
     ///
     /// Wrapper for the `SecKeychainItem`/`SecKeychainItemRef` types:
@@ -36,7 +32,8 @@ impl Item {
                 ptr::null_mut(),
                 ptr::null_mut(),
             )
-        }).unwrap();
+        })
+        .unwrap();
 
         result.into()
     }
@@ -70,7 +67,8 @@ impl Item {
             // Free the original data
             Error::maybe_from_OSStatus(unsafe {
                 SecKeychainItemFreeContent(ptr::null_mut(), result_ptr as *mut c_void)
-            }).unwrap();
+            })
+            .unwrap();
 
             Ok(result)
         }
@@ -89,11 +87,13 @@ impl Item {
                 } else {
                     false
                 }
-            }).map(|attr| String::from_utf8(attr.data().unwrap().into()).unwrap());
+            })
+            .map(|attr| String::from_utf8(attr.data().unwrap().into()).unwrap());
 
         Error::maybe_from_OSStatus(unsafe {
             SecKeychainItemFreeContent(&mut attrs, ptr::null_mut())
-        }).unwrap();
+        })
+        .unwrap();
 
         result.ok_or_else(|| {
             Error::new(

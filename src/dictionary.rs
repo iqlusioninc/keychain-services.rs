@@ -1,5 +1,6 @@
 //! Builder for constructing a `CFDictionary` from attribute pairs.
 
+use crate::{attr::TAttr, ffi::kSecClass, keychain::item};
 use core_foundation::{
     self,
     base::{CFType, TCFType},
@@ -7,10 +8,6 @@ use core_foundation::{
     number::CFNumber,
     string::{CFString, CFStringRef},
 };
-
-use attr::TAttr;
-use ffi::kSecClass;
-use keychain::item;
 
 /// All CFDictionary types we use follow this signature
 pub(crate) type Dictionary = core_foundation::dictionary::CFDictionary<CFType, CFType>;

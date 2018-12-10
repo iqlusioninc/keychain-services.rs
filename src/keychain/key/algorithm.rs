@@ -1,6 +1,5 @@
+use crate::ffi::*;
 use core_foundation::{base::TCFType, string::CFString};
-
-use ffi::*;
 
 /// Cryptographic algorithms for use with keys stored in the keychain.
 ///
