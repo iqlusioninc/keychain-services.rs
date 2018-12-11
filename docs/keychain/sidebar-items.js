@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["item","Items stored in a keychain (e.g. certificates, keys, passwords)"],["key","Keys stored in macOS Keychain Services."]],"struct":[["Keychain","Keychains which store cryptographic keys, passwords, and other secrets."]]});

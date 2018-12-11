@@ -1,0 +1,184 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `keychain_services` crate."><meta name="keywords" content="rust, rustlang, rust-lang, keychain_services"><title>keychain_services - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><p class='location'>Crate keychain_services</p><div class="sidebar-elems"><a id='all-types' href='all.html'><p>See all keychain_services's items</p></a><div class="block items"><ul><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'keychain_services', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/keychain_services/lib.rs.html#1-65' title='goto source code'>[src]</a></span><span class='in-band'>Crate <a class="mod" href=''>keychain_services</a></span></h1><div class='docblock'><p>macOS Keychain Services wrapper for accessing the system and user's
+cryptographic keychains, as well as keys stored in the Secure Enclave
+Processor (SEP).</p>
+<p>This crate provides a thin, low-level binding with a safe, mostly idiomatic
+Rust API. Ideally however, it should be wrapped up in higher level, easy-to-use
+libraries, as the API it presents is rather complicated and arcane.</p>
+<p>For more information on Keychain Services`, see:
+<a href="https://developer.apple.com/documentation/security/keychain_services/keychains">https://developer.apple.com/documentation/security/keychain_services/keychains</a></p>
+<h2 id="code-signing" class="section-header"><a href="#code-signing">Code Signing</a></h2>
+<p>The Keychain Service API requires signed code to access much of its
+functionality. Accessing many APIs from an unsigned app will return
+an error with a kind of <code>ErrorKind::MissingEntitlement</code>.</p>
+<p>Follow the instructions here to create a self-signed code signing certificate:
+<a href="https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html">https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html</a></p>
+<p>You will need to use the <a href="https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html#//apple_ref/doc/uid/TP40005929-CH4-SW4">codesign</a> command-line utility (or XCode) to sign
+your code before it will be able to access most Keychain Services API
+functionality. When you sign, you will need an entitlements file which
+grants access to the Keychain Services API. Below is an example:</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;
+&lt;plist version=&quot;1.0&quot;&gt;
+&lt;dict&gt;
+&lt;key&gt;keychain-access-groups&lt;/key&gt;
+&lt;array&gt;
+    &lt;string&gt;$(AppIdentifierPrefix)com.example.MyApplication&lt;/string&gt;
+&lt;/array&gt;
+&lt;/dict&gt;
+&lt;/plist&gt;
+</code></pre>
+</div><h2 id='reexports' class='section-header'><a href="#reexports">Re-exports</a></h2>
+<table><tr><td><code>pub use crate::<a class="mod" href="../keychain_services/keychain/key/index.html" title="mod keychain_services::keychain::key">key</a>::*;</code></td></tr><tr><td><code>pub use crate::<a class="mod" href="../keychain_services/keychain/index.html" title="mod keychain_services::keychain">keychain</a>::*;</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="keychain/index.html"
+                                  title='mod keychain_services::keychain'>keychain</a></td>
+                           <td class='docblock-short'>
+                                <p>Keychains</p>
+
+                           </td>
+                       </tr></table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.AccessControl.html"
+                                  title='struct keychain_services::AccessControl'>AccessControl</a></td>
+                           <td class='docblock-short'>
+                                <p>Access control policy (a.k.a. ACL) for a keychain item, combining both a
+set of <code>AccessControlFlags</code> and a <code>AttrAccessible</code> restriction.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.AccessControlFlags.html"
+                                  title='struct keychain_services::AccessControlFlags'>AccessControlFlags</a></td>
+                           <td class='docblock-short'>
+                                <p>Access control restrictions for a particular keychain item.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.AttrApplicationLabel.html"
+                                  title='struct keychain_services::AttrApplicationLabel'>AttrApplicationLabel</a></td>
+                           <td class='docblock-short'>
+                                <p>Application-specific key labels, i.e. key fingerprints.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.AttrApplicationTag.html"
+                                  title='struct keychain_services::AttrApplicationTag'>AttrApplicationTag</a></td>
+                           <td class='docblock-short'>
+                                <p>Application-specific tags for keychain items.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.AttrLabel.html"
+                                  title='struct keychain_services::AttrLabel'>AttrLabel</a></td>
+                           <td class='docblock-short'>
+                                <p>Human readable/meaningful labels for keychain items.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Error.html"
+                                  title='struct keychain_services::Error'>Error</a></td>
+                           <td class='docblock-short'>
+                                <p>Error type.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Signature.html"
+                                  title='struct keychain_services::Signature'>Signature</a></td>
+                           <td class='docblock-short'>
+                                <p>Cryptographic signatures</p>
+
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.AccessConjunction.html"
+                                  title='enum keychain_services::AccessConjunction'>AccessConjunction</a></td>
+                           <td class='docblock-short'>
+                                <p>Conjunctions (and/or) on keychain item access.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.AccessConstraint.html"
+                                  title='enum keychain_services::AccessConstraint'>AccessConstraint</a></td>
+                           <td class='docblock-short'>
+                                <p>Constraints on keychain item access.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.AccessOption.html"
+                                  title='enum keychain_services::AccessOption'>AccessOption</a></td>
+                           <td class='docblock-short'>
+                                <p>Options for keychain item access.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.AttrAccessible.html"
+                                  title='enum keychain_services::AttrAccessible'>AttrAccessible</a></td>
+                           <td class='docblock-short'>
+                                <p>Keychain item accessibility restrictions (from most to least restrictive).</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.AttrKeyClass.html"
+                                  title='enum keychain_services::AttrKeyClass'>AttrKeyClass</a></td>
+                           <td class='docblock-short'>
+                                <p>Classes of keys supported by Keychain Services (not to be confused with
+<code>SecClass</code>, <code>SecAttrClass</code> or <code>SecAttrKeyType</code>)</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.AttrKeyType.html"
+                                  title='enum keychain_services::AttrKeyType'>AttrKeyType</a></td>
+                           <td class='docblock-short'>
+                                <p>Types of keys supported by Keychain Services (not to be confused with
+<code>AttrKeyClass</code>)</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.AttrProtocol.html"
+                                  title='enum keychain_services::AttrProtocol'>AttrProtocol</a></td>
+                           <td class='docblock-short'>
+                                <p>Internet protocols optionally associated with <code>SecClass::InternetPassword</code>
+keychain items.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.AttrTokenId.html"
+                                  title='enum keychain_services::AttrTokenId'>AttrTokenId</a></td>
+                           <td class='docblock-short'>
+                                <p>Identifiers for external storage tokens for cryptographic keys
+(i.e. Secure Enclave).</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.ErrorKind.html"
+                                  title='enum keychain_services::ErrorKind'>ErrorKind</a></td>
+                           <td class='docblock-short'>
+                                <p>Kinds of errors.</p>
+
+                           </td>
+                       </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.AccessControlFlag.html"
+                                  title='trait keychain_services::AccessControlFlag'>AccessControlFlag</a></td>
+                           <td class='docblock-short'>
+                                <p>Marker trait for types which can be used as <code>AccessControlFlags</code>.</p>
+
+                           </td>
+                       </tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g. <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g. <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g. <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../";window.currentCrate = "keychain_services";</script><script src="../aliases.js"></script><script src="../main.js"></script><script defer src="../search-index.js"></script></body></html>
