@@ -5,7 +5,7 @@ description   = """
                 access to cryptographic keys stored in the Secure Enclave
                 Processor (SEP).
                 """
-version       = "0.1.1"
+version       = "0.1.2"
 authors       = ["Tony Arcieri <tony@iqlusion.io>"]
 license       = "Apache-2.0"
 homepage      = "https://keychain-services.rs/"
@@ -21,10 +21,10 @@ maintenance = { status = "experimental" }
 travis-ci   = { repository = "iqlusioninc/keychain-services.rs" }
 
 [dependencies]
-core-foundation = "0.6"
+core-foundation = "0.7"
 failure = "0.1"
 failure_derive = "0.1"
-zeroize = "0.4"
+zeroize = "1.1"
 
 [dev-dependencies]
 ring = "0.13"

@@ -348,6 +348,13 @@ extern "C" {
         data_to_sign: CFDataRef,
         error: *mut CFErrorRef,
     ) -> CFDataRef;
+    pub(crate) fn SecKeyVerifySignature(
+        key: KeyRef,
+        algorithm: CFTypeRef,
+        data_to_verify: CFDataRef,
+        signature: CFDataRef,
+        error: *mut CFErrorRef,
+    ) -> u8;
     pub(crate) fn SecKeyGeneratePair(
         parameters: CFDictionaryRef,
         publicKey: *mut KeyRef,

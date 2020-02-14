@@ -110,6 +110,29 @@ impl Key {
         }
     }
 
+    /// Verifies the cryptographic signature of the given data using this key.
+    ///
+    /// Wrapper for the `SecKeyVerifySignature` function. See:
+    /// <https://developer.apple.com/documentation/security/1643715-seckeyverifysignature>
+    pub fn verify(&self, alg: KeyAlgorithm, signed_data: &[u8], signature: &Signature) -> Result<bool, Error> {
+        let mut error: CFErrorRef = ptr::null_mut();
+        let result = unsafe {
+            SecKeyVerifySignature(
+                self.as_concrete_TypeRef(),
+                alg.as_CFString().as_CFTypeRef(),
+                CFData::from_buffer(signed_data).as_concrete_TypeRef(),
+                CFData::from_buffer(signature.as_bytes()).as_concrete_TypeRef(),
+                &mut error,
+            )
+        };
+
+        if error.is_null() {
+            Ok(result == 0x1)
+        } else {
+            Err(error.into())
+        }
+    }
+
     /// Export this key as an external representation.
     ///
     /// If the key is not exportable the operation will fail (e.g. if it
