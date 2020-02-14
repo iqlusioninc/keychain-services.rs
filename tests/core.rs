@@ -32,4 +32,10 @@ fn generate_and_sign_with_ecdsa_keys() {
         untrusted::Input::from(signature.as_ref()),
     )
     .unwrap();
+
+    let res = keypair.public_key.verify(KeyAlgorithm::ECDSASignatureMessageX962SHA256, TEST_MESSAGE, &signature);
+    assert!(res.is_ok());
+    assert!(res.unwrap());
+    let res = keypair.public_key.verify(KeyAlgorithm::ECDSASignatureMessageX962SHA256, &[0u8, 0u8], &signature);
+    assert!(res.is_err());
 }

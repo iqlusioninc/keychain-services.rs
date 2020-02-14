@@ -37,7 +37,7 @@ impl DictionaryBuilder {
     }
 
     /// Add an attribute (i.e. `TSecAttr`) to the dictionary
-    pub(crate) fn add_attr(&mut self, attr: &TAttr) {
+    pub(crate) fn add_attr(&mut self, attr: &dyn TAttr) {
         self.add(attr.kind(), &attr.as_CFType())
     }
 

@@ -197,7 +197,7 @@ impl Display for Error {
 }
 
 impl Fail for Error {
-    fn cause(&self) -> Option<&Fail> {
+    fn cause(&self) -> Option<&dyn Fail> {
         None
     }
 
@@ -542,7 +542,7 @@ impl From<OSStatus> for ErrorKind {
             errSecReadOnly => ErrorKind::ReadOnly,
             errSecReadOnlyAttr => ErrorKind::ReadOnlyAttr,
             errSecWrongSecVersion => ErrorKind::WrongSecVersion,
-            errSecErrnoBase...errSecErrnoLimit => match (status - errSecErrnoBase) as u8 {
+            errSecErrnoBase..=errSecErrnoLimit => match (status - errSecErrnoBase) as u8 {
                 1 => ErrorKind::Io {
                     kind: io::ErrorKind::PermissionDenied,
                 },
