@@ -120,7 +120,7 @@ impl Query {
     /// Wrapper for the `kSecAttrIsPermanent` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrispermanent>
     pub fn permanent(mut self, value: bool) -> Self {
-        self.0.add_boolean(AttrKind::IsPermanent, value);
+        self.0.add_boolean(AttrKind::Permanent, value);
         self
     }
 
@@ -130,6 +130,15 @@ impl Query {
     /// <https://developer.apple.com/documentation/security/ksecattrsynchronizable>
     pub fn synchronizable(mut self, value: bool) -> Self {
         self.0.add_boolean(AttrKind::Synchronizable, value);
+        self
+    }
+
+    /// Query for keys which are or are not sensitive.
+    ///
+    /// Wrapper for the `kSecAttrIsSensitive` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrissensitive>
+    pub fn sensitive(mut self, value: bool) -> Self {
+        self.0.add_boolean(AttrKind::Sensitive, value);
         self
     }
 

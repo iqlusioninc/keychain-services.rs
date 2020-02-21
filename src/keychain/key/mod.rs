@@ -87,6 +87,19 @@ impl Key {
         })
     }
 
+    /// Get the `AttrKeyClass` for this `Key`.
+    pub fn class(&self) -> Option<AttrKeyClass> {
+        self.attributes().find(AttrKind::KeyClass).map(|class| {
+            let s = unsafe { CFString::wrap_under_get_rule(class.as_CFTypeRef() as CFStringRef) };
+            match s.to_string().as_str() {
+                "0" => AttrKeyClass::Public,
+                "1" => AttrKeyClass::Private,
+                "2" => AttrKeyClass::Symmetric,
+                _ => AttrKeyClass::Public
+            }
+        })
+    }
+
     /// Create a cryptographic signature of the given data using this key.
     ///
     /// Wrapper for the `SecKeyCreateSignature` function. See:
@@ -114,7 +127,12 @@ impl Key {
     ///
     /// Wrapper for the `SecKeyVerifySignature` function. See:
     /// <https://developer.apple.com/documentation/security/1643715-seckeyverifysignature>
-    pub fn verify(&self, alg: KeyAlgorithm, signed_data: &[u8], signature: &Signature) -> Result<bool, Error> {
+    pub fn verify(
+        &self,
+        alg: KeyAlgorithm,
+        signed_data: &[u8],
+        signature: &Signature,
+    ) -> Result<bool, Error> {
         let mut error: CFErrorRef = ptr::null_mut();
         let result = unsafe {
             SecKeyVerifySignature(
@@ -158,6 +176,29 @@ impl Key {
 
         if error.is_null() {
             Ok(unsafe { CFData::wrap_under_create_rule(data) }.to_vec())
+        } else {
+            Err(error.into())
+        }
+    }
+
+    /// Restores a key from an external representation of that key.
+    ///
+    /// Wrapper for the `SecKeyCreateWithData` function. See:
+    /// <https://developer.apple.com/documentation/security/1643701-seckeycreatewithdata>
+    pub fn from_external_representation(
+        params: RestoreKeyParams,
+    ) -> Result<Self, Error> {
+        let mut error: CFErrorRef = ptr::null_mut();
+        let data = unsafe {
+            SecKeyCreateWithData(
+                CFData::from_buffer(params.as_bytes()).as_concrete_TypeRef(),
+                params.attributes().as_concrete_TypeRef(),
+                &mut error,
+            )
+        };
+
+        if error.is_null() {
+            Ok(unsafe { Key::wrap_under_create_rule(data) })
         } else {
             Err(error.into())
         }

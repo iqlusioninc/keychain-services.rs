@@ -177,7 +177,16 @@ extern "C" {
     pub(crate) static kSecAttrAccount: CFStringRef;
     pub(crate) static kSecAttrApplicationLabel: CFStringRef;
     pub(crate) static kSecAttrApplicationTag: CFStringRef;
+    pub(crate) static kSecAttrCanEncrypt: CFStringRef;
+    pub(crate) static kSecAttrCanDecrypt: CFStringRef;
+    pub(crate) static kSecAttrCanDerive: CFStringRef;
+    pub(crate) static kSecAttrCanSign: CFStringRef;
+    pub(crate) static kSecAttrCanVerify: CFStringRef;
+    pub(crate) static kSecAttrCanWrap: CFStringRef;
+    pub(crate) static kSecAttrCanUnwrap: CFStringRef;
+    pub(crate) static kSecAttrIsExtractable: CFStringRef;
     pub(crate) static kSecAttrIsPermanent: CFStringRef;
+    pub(crate) static kSecAttrIsSensitive: CFStringRef;
     pub(crate) static kSecAttrKeyClass: CFStringRef;
     pub(crate) static kSecAttrKeyClassPublic: CFStringRef;
     pub(crate) static kSecAttrKeyClassPrivate: CFStringRef;
@@ -315,6 +324,25 @@ extern "C" {
     pub(crate) static kSecKeyAlgorithmRSASignatureMessagePSSSHA256: CFStringRef;
     pub(crate) static kSecKeyAlgorithmRSASignatureMessagePSSSHA384: CFStringRef;
     pub(crate) static kSecKeyAlgorithmRSASignatureMessagePSSSHA512: CFStringRef;
+    pub(crate) static kSecKeyAlwaysSensitive: CFStringRef;
+    pub(crate) static kSecKeyDecrypt: CFStringRef;
+    pub(crate) static kSecKeyDerive: CFStringRef;
+    pub(crate) static kSecKeyEffectiveKeySize: CFStringRef;
+    pub(crate) static kSecKeyEncrypt: CFStringRef;
+    pub(crate) static kSecKeyEndDate: CFStringRef;
+    pub(crate) static kSecKeyExtractable: CFStringRef;
+    pub(crate) static kSecKeyKeySizeInBits: CFStringRef;
+    pub(crate) static kSecKeyKeyType: CFStringRef;
+    pub(crate) static kSecKeyModifiable: CFStringRef;
+    pub(crate) static kSecKeyNeverExtractable: CFStringRef;
+    pub(crate) static kSecKeyPermanent: CFStringRef;
+    pub(crate) static kSecKeyPrivate: CFStringRef;
+    pub(crate) static kSecKeySensitive: CFStringRef;
+    pub(crate) static kSecKeySign: CFStringRef;
+    pub(crate) static kSecKeyStartDate: CFStringRef;
+    pub(crate) static kSecKeyUnwrap: CFStringRef;
+    pub(crate) static kSecKeyVerify: CFStringRef;
+    pub(crate) static kSecKeyWrap: CFStringRef;
     pub(crate) static kSecMatchLimit: CFStringRef;
     pub(crate) static kSecMatchLimitOne: CFStringRef;
     pub(crate) static kSecMatchLimitAll: CFStringRef;
@@ -338,6 +366,11 @@ extern "C" {
     pub(crate) fn SecItemAdd(attributes: CFDictionaryRef, result: *mut CFTypeRef) -> OSStatus;
     pub(crate) fn SecItemCopyMatching(query: CFDictionaryRef, result: *mut CFTypeRef) -> OSStatus;
     pub(crate) fn SecKeyCopyAttributes(key: KeyRef) -> CFDictionaryRef;
+    pub(crate) fn SecKeyCreateWithData(
+        keyData: CFDataRef,
+        attributes: CFDictionaryRef,
+        error: *mut CFErrorRef,
+    ) -> KeyRef;
     pub(crate) fn SecKeyCopyExternalRepresentation(
         key: KeyRef,
         error: *mut CFErrorRef,
@@ -360,6 +393,11 @@ extern "C" {
         publicKey: *mut KeyRef,
         privateKey: *mut KeyRef,
     ) -> OSStatus;
+    pub(crate) fn SecKeyCreateRandomKey(
+        parameters: CFDictionaryRef,
+        error: *mut CFErrorRef,
+    ) -> KeyRef;
+    pub(crate) fn SecKeyCopyPublicKey(privatekey: KeyRef) -> KeyRef;
     pub(crate) fn SecKeyGetTypeID() -> CFTypeID;
     pub(crate) fn SecKeychainCopyDefault(keychain: *mut KeychainRef) -> OSStatus;
     pub(crate) fn SecKeychainCreate(

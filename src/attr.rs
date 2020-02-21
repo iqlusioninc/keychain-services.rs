@@ -46,6 +46,22 @@ pub(crate) enum AttrKind {
     /// <https://developer.apple.com/documentation/security/ksecattrapplicationtag>
     ApplicationTag,
 
+    /// Wrapper for the `kSecKeyDerive` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrcanderive>
+    Derive,
+
+    /// Wrapper for the `kSecKeyDecrypt` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrcandecrypt>
+    Decrypt,
+
+    /// Wrapper for the `kSecKeyEncrypt` attribute key. See:
+    /// https://developer.apple.com/documentation/security/ksecattrcanencrypt>
+    Encrypt,
+
+    /// Wrapper for the `kSecKeyExtractable` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrisextractable>
+    Extractable,
+
     /// Wrapper for the `kSecAttrKeyClass` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrkeyclass>
     KeyClass,
@@ -58,17 +74,21 @@ pub(crate) enum AttrKind {
     /// <https://developer.apple.com/documentation/security/ksecattrkeytype>
     KeyType,
 
-    /// Wrapper for the `kSecAttrIsPermanent` attribute key. See:
-    /// <https://developer.apple.com/documentation/security/ksecattrispermanent>
-    IsPermanent,
-
     /// Wrapper for the `kSecAttrLabel` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrlabel>
     Label,
 
+    /// Wrapper for the `kSecAttrIsPermanent` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrispermanent>
+    Permanent,
+
     /// Wrapper for the `kSecAttrProtocol` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrprotocol>
     Protocol,
+
+    /// Wrapper for `kSecKeySensitive` attribute key. See
+    /// <https://developer.apple.com/documentation/security/ksecattrissensitive>
+    Sensitive,
 
     /// Wrapper for the `kSecAttrServer` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrserver>
@@ -78,6 +98,10 @@ pub(crate) enum AttrKind {
     /// <https://developer.apple.com/documentation/security/ksecattrservice>
     Service,
 
+    /// Wrapper for the `kSecKeySign` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrcansign>
+    Sign,
+
     /// Wrapper for the `kSecAttrSynchronizable` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrsynchronizable>
     Synchronizable,
@@ -85,6 +109,18 @@ pub(crate) enum AttrKind {
     /// Wrapper for the `kSecAttrTokenID` attribute key. See:
     /// <https://developer.apple.com/documentation/security/ksecattrtokenid>
     TokenId,
+
+    /// Wrapper for the `kSecKeyUnwrap` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrcanunwrap>
+    Unwrap,
+
+    /// Wrapper for the `kSecKeyVerify` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrcanverify>
+    Verify,
+
+    /// Wrapper for the `kSecKeyWrap` attribute key. See:
+    /// <https://developer.apple.com/documentation/security/ksecattrcanwrap>
+    Wrap,
 }
 
 impl AttrKind {
@@ -109,7 +145,7 @@ impl AttrKind {
             } else if tag == SecKeychainAttrType::from(kSecAttrKeyType) {
                 AttrKind::KeyType
             } else if tag == SecKeychainAttrType::from(kSecAttrIsPermanent) {
-                AttrKind::IsPermanent
+                AttrKind::Permanent
             } else if tag == SecKeychainAttrType::from(kSecAttrLabel) {
                 AttrKind::Label
             } else if tag == SecKeychainAttrType::from(kSecAttrProtocol) {
@@ -122,6 +158,24 @@ impl AttrKind {
                 AttrKind::Synchronizable
             } else if tag == SecKeychainAttrType::from(kSecAttrTokenID) {
                 AttrKind::TokenId
+            } else if tag == SecKeychainAttrType::from(kSecAttrCanDerive) {
+                AttrKind::Derive
+            } else if tag == SecKeychainAttrType::from(kSecAttrCanDecrypt) {
+                AttrKind::Decrypt
+            } else if tag == SecKeychainAttrType::from(kSecAttrCanEncrypt) {
+                AttrKind::Encrypt
+            } else if tag == SecKeychainAttrType::from(kSecAttrCanSign) {
+                AttrKind::Sign
+            } else if tag == SecKeychainAttrType::from(kSecAttrCanVerify) {
+                AttrKind::Verify
+            } else if tag == SecKeychainAttrType::from(kSecAttrCanWrap) {
+                AttrKind::Wrap
+            } else if tag == SecKeychainAttrType::from(kSecAttrCanUnwrap) {
+                AttrKind::Unwrap
+            } else if tag == SecKeychainAttrType::from(kSecAttrIsExtractable) {
+                AttrKind::Extractable
+            } else if tag == SecKeychainAttrType::from(kSecAttrIsSensitive) {
+                AttrKind::Sensitive
             } else {
                 return None;
             }
@@ -146,10 +200,19 @@ impl From<AttrKind> for CFStringRef {
                 AttrKind::Account => kSecAttrAccount,
                 AttrKind::ApplicationLabel => kSecAttrApplicationLabel,
                 AttrKind::ApplicationTag => kSecAttrApplicationTag,
+                AttrKind::Derive => kSecAttrCanDerive,
+                AttrKind::Decrypt => kSecAttrCanDecrypt,
+                AttrKind::Encrypt => kSecAttrCanEncrypt,
+                AttrKind::Extractable => kSecAttrIsExtractable,
                 AttrKind::KeyClass => kSecAttrKeyClass,
                 AttrKind::KeySizeInBits => kSecAttrKeySizeInBits,
                 AttrKind::KeyType => kSecAttrKeyType,
-                AttrKind::IsPermanent => kSecAttrIsPermanent,
+                AttrKind::Permanent => kSecAttrIsPermanent,
+                AttrKind::Sensitive => kSecAttrIsSensitive,
+                AttrKind::Sign => kSecAttrCanSign,
+                AttrKind::Verify => kSecAttrCanVerify,
+                AttrKind::Wrap => kSecAttrCanWrap,
+                AttrKind::Unwrap => kSecAttrCanUnwrap,
                 AttrKind::Label => kSecAttrLabel,
                 AttrKind::Protocol => kSecAttrProtocol,
                 AttrKind::Server => kSecAttrServer,
@@ -681,5 +744,99 @@ impl TAttr for AttrTokenId {
 
     fn as_CFType(&self) -> CFType {
         self.as_CFString().as_CFType()
+    }
+}
+
+/// Keychain Item Attribute Constants For Keys
+///
+/// <https://developer.apple.com/documentation/security/keychain_services/keychain_items/1495743-keychain_item_attribute_constant>
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum KeyAttr {
+    /// Wrapper for the `kSecKeyAlwaysSensitive` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeyalwayssensitive>
+    AlwaysSensitive,
+    /// Wrapper for the `kSecKeyDerive` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeyderive>
+    CanDerive,
+    /// Wrapper for the `kSecKeyDecrypt` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeydecrypt>
+    CanDecrypt,
+    /// Wrapper for the `kSecKeyEncrypt` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeyencrypt>
+    CanEncrypt,
+    /// Wrapper for the `kSecKeySign` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeysign>
+    CanSign,
+    /// Wrapper for the `kSecKeyUnwrap` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeyunwrap>
+    CanUnwrap,
+    /// Wrapper for the `kSecKeyVerify` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeyverify>
+    CanVerify,
+    /// Wrapper for the `kSecKeyWrap` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeywrap>
+    CanWrap,
+    /// Wrapper for the `kSecKeyEffectiveKeySize` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeyeffectivekeysize>
+    EffectiveKeySize,
+    /// Wrapper for the `kSecKeyEndDate` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeyenddate>
+    EndDate,
+    /// Wrapper for the `kSecKeyExtractable` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeyextractable>
+    Extractable,
+    /// Wrapper for the `kSecKeyModifiable` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeymodifiable>
+    Modifiable,
+    /// Wrapper for the `kSecKeyNeverExtractable` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeyneverextractable>
+    NeverExtractable,
+    /// Wrapper for the `kSecKeyPermanent` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeypermanent>
+    Permanent,
+    /// Wrapper for the `kSecKeyPrivate` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeyprivate>
+    Private,
+    /// Wrapper for the `kSecKeySensitive` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeysensitive>
+    Sensitive,
+    /// Wrapper for the `kSecKeyKeySizeInBits` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeykeysizeinbits>
+    SizeInBits,
+    /// Wrapper for the `kSecKeyStartDate` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeystartdate>
+    StartDate,
+    /// Wrapper for the `kSecKeyKeyType` attribute value see:
+    /// <https://developer.apple.com/documentation/security/kseckeykeytype>
+    Type,
+}
+
+impl KeyAttr {
+    /// Get `CFString` containing the `kSecKeyAttr` dictionary value for
+    /// this particular `SecKeyAttr`.
+    pub fn as_CFString(self) -> CFString {
+        unsafe {
+            CFString::wrap_under_get_rule(match self {
+                KeyAttr::AlwaysSensitive => kSecKeyAlwaysSensitive,
+                KeyAttr::CanDerive => kSecKeyDerive,
+                KeyAttr::CanDecrypt => kSecKeyDecrypt,
+                KeyAttr::CanEncrypt => kSecKeyEncrypt,
+                KeyAttr::CanSign => kSecKeySign,
+                KeyAttr::CanUnwrap => kSecKeyUnwrap,
+                KeyAttr::CanVerify => kSecKeyVerify,
+                KeyAttr::CanWrap => kSecKeyWrap,
+                KeyAttr::Extractable => kSecKeyExtractable,
+                KeyAttr::EffectiveKeySize => kSecKeyEffectiveKeySize,
+                KeyAttr::EndDate => kSecKeyEndDate,
+                KeyAttr::Modifiable => kSecKeyModifiable,
+                KeyAttr::NeverExtractable => kSecKeyNeverExtractable,
+                KeyAttr::Permanent => kSecKeyPermanent,
+                KeyAttr::Private => kSecKeyPrivate,
+                KeyAttr::Sensitive => kSecKeySensitive,
+                KeyAttr::SizeInBits => kSecKeyKeySizeInBits,
+                KeyAttr::StartDate => kSecKeyStartDate,
+                KeyAttr::Type => kSecKeyKeyType,
+            })
+        }
     }
 }
