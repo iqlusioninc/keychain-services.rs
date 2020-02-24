@@ -1,5 +1,5 @@
 use core_foundation::{
-    base::{CFAllocatorRef, CFOptionFlags, CFTypeID, CFTypeRef, OSStatus, TCFType},
+    base::{CFAllocatorRef, CFOptionFlags, CFTypeID, CFTypeRef, OSStatus, TCFType, CFIndex},
     data::CFDataRef,
     dictionary::CFDictionaryRef,
     error::CFErrorRef,
@@ -388,6 +388,18 @@ extern "C" {
         signature: CFDataRef,
         error: *mut CFErrorRef,
     ) -> u8;
+    pub(crate) fn SecKeyCreateEncryptedData(
+        key: KeyRef,
+        algorithm: CFTypeRef,
+        plaintext: CFDataRef,
+        error: *mut CFErrorRef,
+    ) -> CFDataRef;
+    pub(crate) fn SecKeyCreateDecryptedData(
+        key: KeyRef,
+        algorithm: CFTypeRef,
+        ciphertext: CFDataRef,
+        error: *mut CFErrorRef,
+    ) -> CFDataRef;
     pub(crate) fn SecKeyGeneratePair(
         parameters: CFDictionaryRef,
         publicKey: *mut KeyRef,
@@ -397,6 +409,11 @@ extern "C" {
         parameters: CFDictionaryRef,
         error: *mut CFErrorRef,
     ) -> KeyRef;
+    pub(crate) fn SecKeyIsAlgorithmSupported(
+        key: KeyRef,
+        operationType: CFIndex,
+        algorithm: CFTypeRef
+    ) -> u8;
     pub(crate) fn SecKeyCopyPublicKey(privatekey: KeyRef) -> KeyRef;
     pub(crate) fn SecKeyGetTypeID() -> CFTypeID;
     pub(crate) fn SecKeychainCopyDefault(keychain: *mut KeychainRef) -> OSStatus;

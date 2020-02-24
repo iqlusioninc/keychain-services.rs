@@ -56,6 +56,7 @@ mod error;
 mod ffi;
 pub mod keychain;
 mod signature;
+mod ciphertext;
 
 pub use crate::access::*;
 pub use crate::attr::*;
@@ -63,3 +64,4 @@ pub use crate::error::*;
 pub use crate::key::*;
 pub use crate::keychain::*;
 pub use crate::signature::*;
+pub use crate::ciphertext::*;

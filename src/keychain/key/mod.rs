@@ -2,8 +2,9 @@
 
 mod algorithm;
 mod pair;
+mod operation;
 
-pub use self::{algorithm::*, pair::*};
+pub use self::{algorithm::*, pair::*, operation::*};
 use crate::{
     attr::*,
     dictionary::{Dictionary, DictionaryBuilder},
@@ -11,9 +12,10 @@ use crate::{
     ffi::*,
     keychain::item::{self, MatchLimit},
     signature::Signature,
+    ciphertext::Ciphertext,
 };
 use core_foundation::{
-    base::{CFTypeRef, TCFType},
+    base::{CFTypeRef, TCFType, CFIndexConvertible},
     data::{CFData, CFDataRef},
     error::CFErrorRef,
     string::{CFString, CFStringRef},
@@ -100,6 +102,21 @@ impl Key {
         })
     }
 
+    /// Determine whether a key is suitable for an operation using a certain algorithm
+    ///
+    /// Wrapper for the `SecKeyIsAlgorithmSupported` function. See:
+    /// <https://developer.apple.com/documentation/security/1644057-seckeyisalgorithmsupported>
+    pub fn is_supported(&self, operation: KeyOperation, alg: KeyAlgorithm) -> bool {
+        let res = unsafe {
+            SecKeyIsAlgorithmSupported(
+                self.as_concrete_TypeRef(),
+                operation.to_CFIndex(),
+                alg.as_CFString().as_CFTypeRef()
+            )
+        };
+        res == 1
+    }
+
     /// Create a cryptographic signature of the given data using this key.
     ///
     /// Wrapper for the `SecKeyCreateSignature` function. See:
@@ -129,7 +146,6 @@ impl Key {
     /// <https://developer.apple.com/documentation/security/1643715-seckeyverifysignature>
     pub fn verify(
         &self,
-        alg: KeyAlgorithm,
         signed_data: &[u8],
         signature: &Signature,
     ) -> Result<bool, Error> {
@@ -137,7 +153,7 @@ impl Key {
         let result = unsafe {
             SecKeyVerifySignature(
                 self.as_concrete_TypeRef(),
-                alg.as_CFString().as_CFTypeRef(),
+                signature.algorithm().as_CFString().as_CFTypeRef(),
                 CFData::from_buffer(signed_data).as_concrete_TypeRef(),
                 CFData::from_buffer(signature.as_bytes()).as_concrete_TypeRef(),
                 &mut error,
@@ -146,6 +162,52 @@ impl Key {
 
         if error.is_null() {
             Ok(result == 0x1)
+        } else {
+            Err(error.into())
+        }
+    }
+
+    /// Encrypts a block of data using a public key and specified algorithm
+    ///
+    /// Wrapper for the `SecKeyCreateEncryptedData` function. See:
+    /// <https://developer.apple.com/documentation/security/1643957-seckeycreateencrypteddata>
+    pub fn encrypt(&self, alg: KeyAlgorithm, plaintext: &[u8]) -> Result<Ciphertext, Error> {
+        let mut error: CFErrorRef = ptr::null_mut();
+        let ciphertext = unsafe {
+            SecKeyCreateEncryptedData(
+                self.as_concrete_TypeRef(),
+                alg.as_CFString().as_CFTypeRef(),
+                CFData::from_buffer(plaintext).as_concrete_TypeRef(),
+                &mut error
+            )
+        };
+
+        if error.is_null() {
+            let bytes = unsafe { CFData::wrap_under_create_rule(ciphertext) }.to_vec();
+            Ok(Ciphertext::new(alg, bytes))
+        } else {
+            Err(error.into())
+        }
+    }
+
+    /// Decrypts a block of data using a private key and specified algorithm
+    ///
+    /// Wrapper for the `SecKeyCreateDecryptedData` function. See:
+    /// <https://developer.apple.com/documentation/security/1644043-seckeycreatedecrypteddata>
+    pub fn decrypt(&self, ciphertext: Ciphertext) -> Result<Vec<u8>, Error> {
+        let mut error: CFErrorRef = ptr::null_mut();
+        let plaintext = unsafe {
+            SecKeyCreateDecryptedData(
+                self.as_concrete_TypeRef(),
+                ciphertext.algorithm().as_CFString().as_CFTypeRef(),
+                CFData::from_buffer(ciphertext.as_ref()).as_concrete_TypeRef(),
+                &mut error
+            )
+        };
+
+        if error.is_null() {
+            let bytes = unsafe { CFData::wrap_under_create_rule(plaintext) }.to_vec();
+            Ok(bytes)
         } else {
             Err(error.into())
         }
