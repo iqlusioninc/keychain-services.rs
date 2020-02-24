@@ -49,7 +49,7 @@ by this crate:
   - [x] Querying cryptographic keys
   - [x] Querying cryptographic key attributes
   - [x] Digital signatures (ECDSA/RSA)
-  - [ ] Encryption
+  - [x] Encryption
 - [x] Passwords
   - [x] Creating passwords
   - [x] Querying passwords
