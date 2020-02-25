@@ -41,11 +41,11 @@ by this crate:
   - [ ] Deleting certificates
   - [ ] Querying certificates
   - [ ] Signing certificates
-- [ ] Cryptographic keys (`SecKey`)
+- [x] Cryptographic keys (`SecKey`)
   - [x] Generating cryptographic keys
-  - [ ] Importing cryptographic keys
+  - [x] Importing cryptographic keys
   - [x] Exporting cryptographic keys
-  - [ ] Deleting cryptographic keys
+  - [x] Deleting cryptographic keys
   - [x] Querying cryptographic keys
   - [x] Querying cryptographic key attributes
   - [x] Digital signatures (ECDSA/RSA)

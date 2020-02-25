@@ -15,7 +15,7 @@ pub struct Ciphertext {
 impl Ciphertext {
     /// Create a new `Ciphertext`
     pub fn new(alg: KeyAlgorithm, bytes: Vec<u8>) -> Self {
-        // TODO: restrict valid algorithms to signature algorithms?
+        // TODO: restrict valid algorithms to encryption algorithms?
         Self { alg, bytes }
     }
 

@@ -174,16 +174,3 @@ fn encrypt_and_decrypt_rsa_keys() {
     assert!(res.is_err());
 }
 
-#[test]
-fn key_delete() {
-    let acl =
-        AccessControl::create_with_flags(AttrAccessible::WhenUnlocked, Default::default()).unwrap();
-
-    let generate_params = KeyPairGenerateParams::new(AttrKeyType::EcSecPrimeRandom, 256).access_control(&acl)
-                                                        .permanent(true);
-
-    let keypair = KeyPair::generate(generate_params).unwrap();
-    let res = keypair.private_key.delete();
-    println!("{:?}", res);
-    assert!(res.is_ok());
-}

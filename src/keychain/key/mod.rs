@@ -227,7 +227,6 @@ impl Key {
                 &self.application_tag().unwrap().as_CFType(),
             );
         } else if key_class == AttrKeyClass::Private {
-            println!("label = {:?}", self.application_label());
             query.add(
                 unsafe { kSecAttrApplicationLabel },
                 &self.application_label().unwrap().as_CFType(),
@@ -300,12 +299,6 @@ impl Key {
     fn attributes(&self) -> Dictionary {
         unsafe { Dictionary::wrap_under_get_rule(SecKeyCopyAttributes(self.as_concrete_TypeRef())) }
     }
-}
-
-fn _keyring_type_to_string(value: *const c_void) -> String {
-    let new_value = unsafe { CFType::from_void(value) };
-    let value_string = new_value.downcast::<CFString>().unwrap();
-    value_string.to_string()
 }
 
 impl Debug for Key {
