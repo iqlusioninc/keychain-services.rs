@@ -16,7 +16,7 @@ pub enum KeyOperation {
     /// Sign operation
     Sign,
     /// Verify operation
-    Verify
+    Verify,
 }
 
 impl CFIndexConvertible for KeyOperation {

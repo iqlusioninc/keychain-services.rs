@@ -1,26 +1,27 @@
 //! Keys stored in macOS Keychain Services.
 
 mod algorithm;
-mod pair;
 mod operation;
+mod pair;
 
-pub use self::{algorithm::*, pair::*, operation::*};
+pub use self::{algorithm::*, operation::*, pair::*};
 use crate::{
     attr::*,
+    ciphertext::Ciphertext,
     dictionary::{Dictionary, DictionaryBuilder},
     error::Error,
     ffi::*,
     keychain::item::{self, MatchLimit},
     signature::Signature,
-    ciphertext::Ciphertext,
 };
 use core_foundation::{
-    base::{CFTypeRef, TCFType, CFIndexConvertible},
+    base::{CFIndexConvertible, CFType, CFTypeRef, FromVoid, TCFType},
     data::{CFData, CFDataRef},
     error::CFErrorRef,
     string::{CFString, CFStringRef},
 };
 use std::{
+    ffi::c_void,
     fmt::{self, Debug},
     ptr,
 };
@@ -91,15 +92,16 @@ impl Key {
 
     /// Get the `AttrKeyClass` for this `Key`.
     pub fn class(&self) -> Option<AttrKeyClass> {
-        self.attributes().find(AttrKind::KeyClass).map(|class| {
-            let s = unsafe { CFString::wrap_under_get_rule(class.as_CFTypeRef() as CFStringRef) };
-            match s.to_string().as_str() {
-                "0" => AttrKeyClass::Public,
-                "1" => AttrKeyClass::Private,
-                "2" => AttrKeyClass::Symmetric,
-                _ => AttrKeyClass::Public
-            }
-        })
+        self.attributes()
+            .find(AttrKind::KeyClass)
+            .map(|class| AttrKeyClass::from(class.as_CFTypeRef() as CFStringRef))
+    }
+
+    /// Get the `AttrKeyType` for this `Key`.
+    pub fn key_type(&self) -> Option<AttrKeyType> {
+        self.attributes()
+            .find(AttrKind::KeyType)
+            .map(|keytype| AttrKeyType::from(keytype.as_CFTypeRef() as CFStringRef))
     }
 
     /// Determine whether a key is suitable for an operation using a certain algorithm
@@ -111,7 +113,7 @@ impl Key {
             SecKeyIsAlgorithmSupported(
                 self.as_concrete_TypeRef(),
                 operation.to_CFIndex(),
-                alg.as_CFString().as_CFTypeRef()
+                alg.as_CFString().as_CFTypeRef(),
             )
         };
         res == 1
@@ -144,11 +146,7 @@ impl Key {
     ///
     /// Wrapper for the `SecKeyVerifySignature` function. See:
     /// <https://developer.apple.com/documentation/security/1643715-seckeyverifysignature>
-    pub fn verify(
-        &self,
-        signed_data: &[u8],
-        signature: &Signature,
-    ) -> Result<bool, Error> {
+    pub fn verify(&self, signed_data: &[u8], signature: &Signature) -> Result<bool, Error> {
         let mut error: CFErrorRef = ptr::null_mut();
         let result = unsafe {
             SecKeyVerifySignature(
@@ -178,7 +176,7 @@ impl Key {
                 self.as_concrete_TypeRef(),
                 alg.as_CFString().as_CFTypeRef(),
                 CFData::from_buffer(plaintext).as_concrete_TypeRef(),
-                &mut error
+                &mut error,
             )
         };
 
@@ -201,7 +199,7 @@ impl Key {
                 self.as_concrete_TypeRef(),
                 ciphertext.algorithm().as_CFString().as_CFTypeRef(),
                 CFData::from_buffer(ciphertext.as_ref()).as_concrete_TypeRef(),
-                &mut error
+                &mut error,
             )
         };
 
@@ -210,6 +208,37 @@ impl Key {
             Ok(bytes)
         } else {
             Err(error.into())
+        }
+    }
+
+    /// Delete this key from the keychain
+    ///
+    /// Wrapper for `SecItemDelete` function. See:
+    /// <https://developer.apple.com/documentation/security/1395547-secitemdelete>
+    pub fn delete(self) -> Result<(), Error> {
+        let mut query = DictionaryBuilder::new();
+        let key_class = self.class().unwrap();
+        query.add(unsafe { kSecClass }, &item::Class::Key.as_CFString());
+        query.add(unsafe { kSecAttrKeyClass }, &key_class.as_CFString());
+        if key_class == AttrKeyClass::Public {
+            query.add(unsafe { kSecAttrKeyType }, &self.key_type().unwrap().as_CFString());
+            query.add(
+                unsafe { kSecAttrApplicationTag },
+                &self.application_tag().unwrap().as_CFType(),
+            );
+        } else if key_class == AttrKeyClass::Private {
+            println!("label = {:?}", self.application_label());
+            query.add(
+                unsafe { kSecAttrApplicationLabel },
+                &self.application_label().unwrap().as_CFType(),
+            );
+            query.add_boolean(unsafe { kSecReturnRef }, true);
+        }
+        let status = unsafe { SecItemDelete(Dictionary::from(query).as_concrete_TypeRef()) };
+        if let Some(e) = Error::maybe_from_OSStatus(status) {
+            Err(e)
+        } else {
+            Ok(())
         }
     }
 
@@ -247,9 +276,7 @@ impl Key {
     ///
     /// Wrapper for the `SecKeyCreateWithData` function. See:
     /// <https://developer.apple.com/documentation/security/1643701-seckeycreatewithdata>
-    pub fn from_external_representation(
-        params: RestoreKeyParams,
-    ) -> Result<Self, Error> {
+    pub fn from_external_representation(params: RestoreKeyParams) -> Result<Self, Error> {
         let mut error: CFErrorRef = ptr::null_mut();
         let data = unsafe {
             SecKeyCreateWithData(
@@ -273,6 +300,12 @@ impl Key {
     fn attributes(&self) -> Dictionary {
         unsafe { Dictionary::wrap_under_get_rule(SecKeyCopyAttributes(self.as_concrete_TypeRef())) }
     }
+}
+
+fn _keyring_type_to_string(value: *const c_void) -> String {
+    let new_value = unsafe { CFType::from_void(value) };
+    let value_string = new_value.downcast::<CFString>().unwrap();
+    value_string.to_string()
 }
 
 impl Debug for Key {

@@ -160,8 +160,7 @@ impl KeyPairGenerateParams {
     /// Wrapper for the `kSecKeyVerify` attribute key. See:
     /// <https://developer.apple.com/documentation/security/kseckeyverify>
     pub fn can_verify(mut self, value: bool) -> Self {
-        self.attrs
-            .add_boolean(AttrKind::Verify, value);
+        self.attrs.add_boolean(AttrKind::Verify, value);
         self
     }
 
@@ -304,4 +303,3 @@ impl RestoreKeyParams {
         self.key_data.as_slice()
     }
 }
-

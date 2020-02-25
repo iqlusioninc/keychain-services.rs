@@ -507,6 +507,34 @@ impl TAttr for AttrKeyClass {
     }
 }
 
+impl From<CFStringRef> for AttrKeyClass {
+    fn from(string_ref: CFStringRef) -> AttrKeyClass {
+        unsafe {
+            if string_ref == kSecAttrKeyClassPublic {
+                AttrKeyClass::Public
+            } else if string_ref == kSecAttrKeyClassPrivate {
+                AttrKeyClass::Private
+            } else {
+                AttrKeyClass::Symmetric
+            }
+        }
+    }
+}
+
+impl<'a> From<&'a CFString> for AttrKeyClass {
+    fn from(string: &'a CFString) -> AttrKeyClass {
+        unsafe {
+            if *string == CFString::wrap_under_get_rule(kSecAttrKeyClassPublic) {
+                AttrKeyClass::Public
+            } else if *string == CFString::wrap_under_get_rule(kSecAttrKeyClassPrivate) {
+                AttrKeyClass::Private
+            } else {
+                AttrKeyClass::Symmetric
+            }
+        }
+    }
+}
+
 /// Types of keys supported by Keychain Services (not to be confused with
 /// `AttrKeyClass`)
 ///
@@ -555,6 +583,34 @@ impl TAttr for AttrKeyType {
 
     fn as_CFType(&self) -> CFType {
         self.as_CFString().as_CFType()
+    }
+}
+
+impl From<CFStringRef> for AttrKeyType {
+    fn from(string_ref: CFStringRef) -> AttrKeyType {
+        unsafe {
+            if string_ref == kSecAttrKeyTypeECSECPrimeRandom {
+                AttrKeyType::EcSecPrimeRandom
+            } else if string_ref == kSecAttrKeyTypeRSA {
+                AttrKeyType::Rsa
+            } else {
+                AttrKeyType::Aes
+            }
+        }
+    }
+}
+
+impl<'a> From<&'a CFString> for AttrKeyType {
+    fn from(string: &'a CFString) -> AttrKeyType {
+        unsafe {
+            if *string == CFString::wrap_under_get_rule(kSecAttrKeyTypeECSECPrimeRandom) {
+                AttrKeyType::EcSecPrimeRandom
+            } else if *string == CFString::wrap_under_get_rule(kSecAttrKeyTypeRSA) {
+                AttrKeyType::Rsa
+            } else {
+                AttrKeyType::Aes
+            }
+        }
     }
 }
 

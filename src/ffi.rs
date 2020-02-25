@@ -1,5 +1,5 @@
 use core_foundation::{
-    base::{CFAllocatorRef, CFOptionFlags, CFTypeID, CFTypeRef, OSStatus, TCFType, CFIndex},
+    base::{CFAllocatorRef, CFIndex, CFOptionFlags, CFTypeID, CFTypeRef, OSStatus, TCFType},
     data::CFDataRef,
     dictionary::CFDictionaryRef,
     error::CFErrorRef,
@@ -364,6 +364,7 @@ extern "C" {
         reserved: *const c_void,
     ) -> CFStringRef;
     pub(crate) fn SecItemAdd(attributes: CFDictionaryRef, result: *mut CFTypeRef) -> OSStatus;
+    pub(crate) fn SecItemDelete(attributes: CFDictionaryRef) -> OSStatus;
     pub(crate) fn SecItemCopyMatching(query: CFDictionaryRef, result: *mut CFTypeRef) -> OSStatus;
     pub(crate) fn SecKeyCopyAttributes(key: KeyRef) -> CFDictionaryRef;
     pub(crate) fn SecKeyCreateWithData(
@@ -412,7 +413,7 @@ extern "C" {
     pub(crate) fn SecKeyIsAlgorithmSupported(
         key: KeyRef,
         operationType: CFIndex,
-        algorithm: CFTypeRef
+        algorithm: CFTypeRef,
     ) -> u8;
     pub(crate) fn SecKeyCopyPublicKey(privatekey: KeyRef) -> KeyRef;
     pub(crate) fn SecKeyGetTypeID() -> CFTypeID;
