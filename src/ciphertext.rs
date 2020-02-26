@@ -24,7 +24,7 @@ impl Ciphertext {
         self.alg
     }
 
-    /// Borrow the signature data as bytes
+    /// Borrow the ciphertext data as bytes
     pub fn as_bytes(&self) -> &[u8] {
         &self.bytes
     }
