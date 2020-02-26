@@ -1,7 +1,7 @@
 //! Ciphertext produced by this library.
 //!
 //! This type doesn't map directly to any type in the Keychain Services API,
-//! but instead provides a newtype for signatures this binding produces.
+//! but instead provides a newtype for ciphertexts this binding produces.
 
 use crate::key::KeyAlgorithm;
 
