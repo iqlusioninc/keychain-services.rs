@@ -99,13 +99,13 @@ impl From<AccessConjunction> for CFOptionFlags {
 pub enum AccessOption {
     /// Require private key be stored in the device's Secure Enclave.
     ///
-    /// Wrapper for `kSecAccessControlApplicationPassword`. See:
+    /// Wrapper for `kSecAccessControlPrivateKeyUsage`. See:
     /// <https://developer.apple.com/documentation/security/secaccesscontrolcreateflags/ksecaccesscontrolprivatekeyusage>
     PrivateKeyUsage,
 
     /// Generate encryption-key from an application-provided password.
     ///
-    /// Wrapper for `kSecAccessControlPrivateKeyUsage`. See:
+    /// Wrapper for `kSecAccessControlApplicationPassword`. See:
     /// <https://developer.apple.com/documentation/security/secaccesscontrolcreateflags/ksecaccesscontrolapplicationpassword>
     ApplicationPassword,
 }

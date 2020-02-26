@@ -51,6 +51,7 @@ extern crate core_foundation;
 
 mod access;
 mod attr;
+mod ciphertext;
 mod dictionary;
 mod error;
 mod ffi;
@@ -59,6 +60,7 @@ mod signature;
 
 pub use crate::access::*;
 pub use crate::attr::*;
+pub use crate::ciphertext::*;
 pub use crate::error::*;
 pub use crate::key::*;
 pub use crate::keychain::*;
