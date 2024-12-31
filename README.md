@@ -1,4 +1,4 @@
-# Keychain Services for Rust 🔐 <a href="https://www.iqlusion.io"><img src="https://storage.googleapis.com/iqlusion-prod-web-assets/img/logo/iqlusion-rings-sm.png" alt="iqlusion" width="24" height="24"></a>
+# Keychain Services for Rust 🔐 <a href="https://www.iqlusion.io"><img src="https://storage.googleapis.com/iqlusion-production-web/img/logo/iqlusion-rings-tiny.png" alt="iqlusion" width="24" height="24"></a>
 
 [![Crate][crate-image]][crate-link]
 [![Build Status][build-image]][build-link]
